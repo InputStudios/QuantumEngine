@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PrimalEditor.Components
 {
-    public class Transform : Component
+    [DataContract]
+    class Transform : Component
     {
         private Vector3 _position;
         [DataMember]

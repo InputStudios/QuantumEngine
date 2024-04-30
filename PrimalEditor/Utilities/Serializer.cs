@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PrimalEditor.GameProject;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,7 +21,8 @@ namespace PrimalEditor.Utilities
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                // TODO: log error
+                Logger.Log(MessageType.Info, $"Failed to serialize {instance} to {path}");
+                throw;
             }
         }
 
@@ -36,8 +38,8 @@ namespace PrimalEditor.Utilities
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                // TODO: log error
-                return default(T);
+                Logger.Log(MessageType.Info, $"Failed to deserialize {path}");
+                throw;
             }
         }
     }

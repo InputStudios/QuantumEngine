@@ -96,7 +96,8 @@ namespace PrimalEditor.GameProject
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                // TODO: log error
+                Logger.Log(MessageType.Info, $"Failed to read project data");
+                throw;
             }
         }
     }

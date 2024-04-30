@@ -51,6 +51,7 @@ namespace PrimalEditor.GameProject
         [DataMember(Name = nameof(GameEntities))]
         private readonly ObservableCollection<GameEntity> _gameEntities = new ObservableCollection<GameEntity>();
         public ReadOnlyObservableCollection<GameEntity> GameEntities { get; private set; }
+
         public Scene(Project project, string name)
         {
             Debug.Assert(project != null);
@@ -64,7 +65,7 @@ namespace PrimalEditor.GameProject
 
         private void AddGameEntity(GameEntity entity)
         {
-            Debug.Assert(_gameEntities.Contains(entity));
+            Debug.Assert(!_gameEntities.Contains(entity));
             _gameEntities.Add(entity);
         }
         private void RemoveGameEntity(GameEntity entity)

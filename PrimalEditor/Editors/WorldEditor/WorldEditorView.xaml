@@ -5,11 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PrimalEditor.Editors"
              xmlns:utl="clr-namespace:PrimalEditor.Utilities"
-             mc:Ignorable="d" Focusable="True"
+             mc:Ignorable="d" Background="White" Focusable="True"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding UndoCommand}" Key="Z" Modifiers="Ctrl" />
-        <KeyBinding Command="{Binding RedoCommand}" Key="Y" Modifiers="Ctrl" />
+        <KeyBinding Command="{Binding RedoCommand}" Key="Z" Modifiers="Ctrl+Shift" />
         <KeyBinding Command="{Binding SaveCommand}" Key="S" Modifiers="Ctrl" />
     </UserControl.InputBindings>
     <Grid>
@@ -31,9 +31,15 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" 
-                      VerticalAlignment="Top" />
-                <utl:UndoRedoView DataContext="{Binding UndoRedo}" Grid.Row="1" />
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" />
+                <TabControl Grid.Row="1">
+                    <TabItem Header="History">
+                        <utl:UndoRedoView DataContext="{Binding UndoRedo}" Grid.Row="1"  />
+                    </TabItem>
+                    <TabItem Header="Log">
+                        <utl:LoggerView />
+                    </TabItem>
+                </TabControl>
             </Grid>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Left" 
                   VerticalAlignment="Stretch" />
@@ -42,9 +48,9 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" 
-                      VerticalAlignment="Top" />
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" />
                 <local:ProjectLayoutView />
+                <local:GameEntityView Grid.Row="1" />
             </Grid>
         </Grid>
     </Grid>
