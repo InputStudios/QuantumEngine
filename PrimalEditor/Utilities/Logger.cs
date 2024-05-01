@@ -26,21 +26,21 @@ namespace PrimalEditor.Utilities
         public int Line { get; }
         public string MetaData => $"{File}: {Caller} ({Line})";
 
-        public LogMessage(MessageType type, string msg, string file, string caller, int line)
+        public LogMessage(MessageType type, string message, string file, string caller, int line)
         {
             Time = DateTime.Now;
             MessageType = type;
-            Message = msg;
+            Message = message;
             File = Path.GetFileName(file);
             Caller = caller;
             Line = line;
         }
     }
 
-    static class Logger
+    class Logger
     {
         private static int _messageFilter = (int)(MessageType.Info | MessageType.Warning | MessageType.Error);
-        private static ObservableCollection<LogMessage> _messages = new ObservableCollection<LogMessage>();
+        private readonly static ObservableCollection<LogMessage> _messages = new ObservableCollection<LogMessage>();
         public static ReadOnlyObservableCollection<LogMessage> Messages 
         { get; } = new ReadOnlyObservableCollection<LogMessage>(_messages);
         public static CollectionViewSource FilteredMessages

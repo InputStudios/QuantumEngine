@@ -52,7 +52,6 @@ namespace PrimalEditor.Components
         }
 
         public Transform(GameEntity owner) : base(owner)
-        {
-        }
+        { }
     }
 }
