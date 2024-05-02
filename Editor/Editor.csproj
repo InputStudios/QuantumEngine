@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<BaseOutputPath>..\x64\</BaseOutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
+		<PlatformTarget>x64</PlatformTarget>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <WarningLevel>7</WarningLevel>
+	  <NoWarn>1701;1702;8612;8618;8600;8601;8602;8603;8604;8622;8629;8625;8767</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <WarningLevel>7</WarningLevel>
+	  <NoWarn>1701;1702;8612;8618;8600;8601;8602;8603;8604;8622;8629;8625;8767</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="Resources\app_icon.ico" />
+	</ItemGroup>
+
+</Project>
