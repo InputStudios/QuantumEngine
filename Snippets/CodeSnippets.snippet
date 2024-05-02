@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Property Variable.</Title>    
+            <Author>Zettabite Pragmara</Author>
+            <Description>Creates a Property Variable with OnPropertyChanged.</Description>
+            <Shortcut>pprop</Shortcut> 
+        </Header>
+        <Snippet>
+            <Code Language="CSharp"><![CDATA[private $typeName$ _$varName$;
+                public $typeName$ $varName$
+				{
+				get => _$varName$;
+				set
+				{
+				if (_$varName$ != value)
+				{
+				_$varName$ = value;
+				OnPropertyChanged(nameof($varName$));
+				}
+				}
+				}]]></Code>
+            <Declarations>      
+                <Literal>      
+                    <ID>varName</ID>      
+                    <ToolTip>variable name.</ToolTip>         
+                    <Default>arr</Default>        
+                </Literal>
+                <Literal>      
+                    <ID>typeName</ID>      
+                    <ToolTip>type name.</ToolTip>         
+                    <Default>Object</Default>        
+                </Literal>
+             </Declarations> 	
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>

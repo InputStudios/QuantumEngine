@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>DependencyProperty Variable.</Title>    
+            <Author>Andrey Trepalin</Author>
+            <Description>Creates a DependencyProperty.</Description>
+            <Shortcut>dprop</Shortcut> 
+        </Header>
+        <Snippet>
+            <Code Language="CSharp">
+                <![CDATA[public $typeName$ $varName$
+				{
+				get { return ($typeName$)GetValue($varName$Property); }
+				set { SetValue($varName$Property, value); }
+				}
+				
+				// using a DependencyProperty as the backing store for $varName$ 
+				// enabling animation, styling, binding, and more
+				public static readonly DependencyProperty $varName$Property =
+					DependencyProperty.Register(nameof($varName$), typeof($typeName$), typeof($className$), new PropertyMetadata(0));
+                ]]>
+            </Code>
+            <Declarations>      
+                <Literal>      
+                    <ID>varName</ID>      
+                    <ToolTip>variable name.</ToolTip>         
+                    <Default>arr</Default>        
+                </Literal>
+                <Literal>      
+                    <ID>typeName</ID>      
+                    <ToolTip>type name.</ToolTip>         
+                    <Default>Object</Default>        
+                </Literal>
+                 <Literal>      
+                    <ID>className</ID>      
+                    <ToolTip>class.</ToolTip>         
+                    <Default>null</Default>        
+                </Literal>
+             </Declarations> 	
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>
