@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:Editor"
         xmlns:editors="clr-namespace:Editor.Editors"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="Editor" Height="768" Width="1366">
+        Title="Editor" Height="768" Width="1366"
+        Style="{StaticResource QuantumWindowStyle}">
+    
     <Grid>
         <editors:WorldEditorView />
     </Grid>

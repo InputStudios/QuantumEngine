@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 namespace Editor.GameProject
 {
@@ -8,6 +11,7 @@ namespace Editor.GameProject
     /// </summary>
     public partial class ProjectBrowserDialog : Window
     {
+        private readonly CubicEase _easing = new CubicEase() { EasingMode = EasingMode.EaseInOut };
         public ProjectBrowserDialog()
         {
             InitializeComponent();
@@ -21,18 +25,46 @@ namespace Editor.GameProject
             {
                 openProjectButton.IsEnabled = false;
                 openProjectView.Visibility = Visibility.Hidden;
-                OnToggleButton_Click(createProjectButton, new RoutedEventArgs());
+                OnToggleButton_Click(newProjectButton, new RoutedEventArgs());
             }
+        }
+
+        private void AnimateToCreateProject()
+        {
+            var hightlightAnimation = new DoubleAnimation(200, 400, new Duration(TimeSpan.FromSeconds(0.2)));
+            hightlightAnimation.EasingFunction = _easing;
+            hightlightAnimation.Completed += (s, e) =>
+            {
+                var animation = new ThicknessAnimation(new Thickness(0), new Thickness(-1600, 0, 0, 0), new Duration(TimeSpan.FromSeconds(0.5)));
+                animation.EasingFunction = _easing;
+                browserContent.BeginAnimation(MarginProperty, animation);
+            };
+            highlightRect.BeginAnimation(Canvas.LeftProperty, hightlightAnimation);
+        }
+
+        private void AnimateToOpenProject()
+        {
+            var hightlightAnimation = new DoubleAnimation(400, 200, new Duration(TimeSpan.FromSeconds(0.2)));
+            hightlightAnimation.EasingFunction= _easing;
+            hightlightAnimation.Completed += (s, e) =>
+            {
+                var animation = new ThicknessAnimation(new Thickness(-1600, 0, 0, 0), new Thickness(0), new Duration(TimeSpan.FromSeconds(0.5)));
+                animation.EasingFunction= _easing;
+                browserContent.BeginAnimation(MarginProperty, animation);
+            };
+            highlightRect.BeginAnimation(Canvas.LeftProperty, hightlightAnimation);
         }
 
         private void OnToggleButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender == openProjectButton)
             {
-                if (createProjectButton.IsChecked == true)
+                if (newProjectButton.IsChecked == true)
                 {
-                    createProjectButton.IsChecked = false;
-                    browserContent.Margin = new Thickness(0);
+                    newProjectButton.IsChecked = false;
+                    AnimateToOpenProject();
+                    openProjectView.IsEnabled = true;
+                    newProjectView.IsEnabled = false;
                 }
                 openProjectButton.IsChecked = true;
             }
@@ -41,9 +73,11 @@ namespace Editor.GameProject
                 if (openProjectButton.IsChecked == true)
                 {
                     openProjectButton.IsChecked = false;
-                    browserContent.Margin = new Thickness(-800, 0, 0, 0);
+                    AnimateToCreateProject();
+                    openProjectView.IsEnabled = false;
+                    newProjectView.IsEnabled = true;
                 }
-                createProjectButton.IsChecked = true;
+                newProjectButton.IsChecked = true;
             }
         }
     }

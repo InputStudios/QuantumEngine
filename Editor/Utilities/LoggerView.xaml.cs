@@ -22,8 +22,8 @@ namespace Editor.Utilities
         {
             var filter = 0x0;
             if (toggleInfo.IsChecked == true) filter |= (int)MessageType.Info;
-            if (toggleWarning.IsChecked == true) filter |= (int)MessageType.Warning;
-            if (toggleError.IsChecked == true) filter |= (int)MessageType.Error;
+            if (toggleWarnings.IsChecked == true) filter |= (int)MessageType.Warning;
+            if (toggleErrors.IsChecked == true) filter |= (int)MessageType.Error;
             Logger.SetMessageFilter(filter);
         }
     }
