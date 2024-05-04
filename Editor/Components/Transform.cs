@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.Serialization;
 
 namespace Editor.Components
@@ -50,8 +51,186 @@ namespace Editor.Components
                 }
             }
         }
+        public override IMSComponent GetMSComponent(MSEntity msEntity) => new MSTransform(msEntity);
 
-        public Transform(GameEntity owner) : base(owner)
-        { }
+        public Transform(GameEntity owner) : base(owner) {}
+    }
+
+    sealed class MSTransform : MSComponent<Transform>
+    {
+        private float? _posX;
+        public float? PosX
+        {
+            get => _posX;
+            set
+            {
+                if (_posX != value)
+                {
+                    _posX = value;
+                    OnPropertyChanged(nameof(PosX));
+                }
+            }
+        }
+
+        private float? _posY;
+
+        public float? PosY
+        {
+            get => _posY;
+            set
+            {
+                if (_posY != value)
+                {
+                    _posY = value;
+                    OnPropertyChanged(nameof(PosY));
+                }
+            }
+        }
+
+        private float? _posZ;
+        public float? PosZ
+        {
+            get => _posZ;
+            set
+            {
+                if (_posZ != value)
+                {
+                    _posZ = value;
+                    OnPropertyChanged(nameof(PosZ));
+                }
+            }
+        }
+
+        private float? _rotX;
+        public float? RotX
+        {
+            get => _rotX;
+            set
+            {
+                if (_rotX != value)
+                {
+                    _rotX = value;
+                    OnPropertyChanged(nameof(RotX));
+                }
+            }
+        }
+
+        private float? _rotY;
+        public float? RotY
+        {
+            get => _rotY;
+            set
+            {
+                if (_rotY != value)
+                {
+                    _rotY = value;
+                    OnPropertyChanged(nameof(RotY));
+                }
+            }
+        }
+
+        private float? _rotZ;
+        public float? RotZ
+        {
+            get => _rotZ;
+            set
+            {
+                if (_rotZ != value)
+                {
+                    _rotZ = value;
+                    OnPropertyChanged(nameof(RotZ));
+                }
+            }
+        }
+
+        private float? _scaleX;
+        public float? ScaleX
+        {
+            get => _scaleX;
+            set
+            {
+                if (_scaleX != value)
+                {
+                    _scaleX = value;
+                    OnPropertyChanged(nameof(ScaleX));
+                }
+            }
+        }
+
+        private float? _scaleY;
+        public float? ScaleY
+        {
+            get => _scaleY;
+            set
+            {
+                if (_scaleY != value)
+                {
+                    _scaleY = value;
+                    OnPropertyChanged(nameof(ScaleY));
+                }
+            }
+        }
+
+        private float? _scaleZ;
+        public float? ScaleZ
+        {
+            get => _scaleZ;
+            set
+            {
+                if (_scaleZ != value)
+                {
+                    _scaleZ = value;
+                    OnPropertyChanged(nameof(ScaleZ));
+                }
+            }
+        }
+
+        protected override bool UpdateComponents(string propertyName)
+        {
+            switch (propertyName) 
+            {
+                case nameof(PosX):
+                case nameof(PosY):
+                case nameof(PosZ):
+                    SelectedComponents.ForEach(c => c.Position = new Vector3(_posX ?? c.Position.X, _posY ?? c.Position.Y, _posZ ?? c.Position.Z));
+                    return true;
+
+                case nameof(RotX):
+                case nameof(RotY):
+                case nameof(RotZ):
+                    SelectedComponents.ForEach(c => c.Rotation = new Vector3(_rotX ?? c.Rotation.X, _rotY ?? c.Rotation.Y, _rotZ ?? c.Rotation.Z));
+                    return true;
+
+                case nameof(ScaleX):
+                case nameof(ScaleY):
+                case nameof(ScaleZ):
+                    SelectedComponents.ForEach(c => c.Scale = new Vector3(_scaleX ?? c.Scale.X, _scaleY ?? c.Scale.Y, _scaleZ ?? c.Scale.Z));
+                    return true;
+            }
+
+            return false;
+        }
+
+        protected override bool UpdateMSComponent()
+        {
+            PosX = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Position.X));
+            PosY = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Position.Y));
+            PosZ = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Position.Z));
+
+            RotX = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Rotation.X));
+            RotY = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Rotation.Y));
+            RotZ = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Rotation.Z));
+
+            ScaleX = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Scale.X));
+            ScaleY = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Scale.Y));
+            ScaleZ = MSEntity.GetMixedValues(SelectedComponents, new Func<Transform, float>(x => x.Scale.Z));
+
+            return true;
+        }
+
+        public MSTransform(MSEntity msEntity) : base(msEntity)
+        {
+            Refresh();
+        }
     }
 }

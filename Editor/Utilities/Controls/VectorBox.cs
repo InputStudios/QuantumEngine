@@ -12,7 +12,7 @@ namespace Editor.Utilities.Controls
     {
         Vector2,
         Vector3,
-        Vector4,
+        Vector4
     }
     class VectorBox : Control
     {

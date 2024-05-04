@@ -4,9 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Editor.Editors"
+             xmlns:vm="clr-namespace:Editor.Components" 
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vm:GameEntity,IsDesignTimeCreatable=True}"
              d:DesignHeight="450" d:DesignWidth="800">
-    
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type vm:MSTransform}">
+            <local:TransformView />
+        </DataTemplate>
+    </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <ScrollViewer.Style>
             <Style TargetType="ScrollViewer">
@@ -38,13 +44,13 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Name" Grid.Column="0" Margin="5,0,0,0" />
+                <TextBlock Text="Name" Grid.Column="0" Margin="5,0,0,0" Style="{StaticResource LightTextBlockStyle}"/>
                 <TextBox Text="{Binding Name, UpdateSourceTrigger=Explicit}" Grid.Column="1"
                          GotKeyboardFocus="OnName_TextBox_GotKeyboardFocus"
                          LostKeyboardFocus="OnName_TextBox_LostKeyboardFocus"
                          Tag="{Binding RenameCommand}" />
                 <StackPanel Orientation="Horizontal" Grid.Column="2">
-                    <TextBlock Text="Enabled" Margin="5,0,0,0" />
+                    <TextBlock Text="Enabled" Margin="5,0,0,0" Style="{StaticResource LightTextBlockStyle}" />
                     <CheckBox IsChecked="{Binding IsEnabled, Mode=OneWay}"
                               Click="OnIsEnabled_CheckBox_Click"
                               Margin="5,0" VerticalAlignment="Center" />

@@ -18,9 +18,6 @@ using System.Windows.Shapes;
 
 namespace Editor.Editors
 {
-    /// <summary>
-    /// Interaction logic for GameEntityView.xaml
-    /// </summary>
     public partial class GameEntityView : UserControl
     {
         private Action _undoAction;
@@ -64,6 +61,7 @@ namespace Editor.Editors
 
         private void OnName_TextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
+            _propertyName = string.Empty;
             _undoAction = GetRenameAction();
         }
 
