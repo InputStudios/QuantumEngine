@@ -1,13 +1,16 @@
-﻿using Editor.Components;
+﻿// Copyright (c) Andrey Trepalin. 
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+
+using Editor.Components;
+using Editor.EngineAPIStructs;
 using Editor.GameProject;
 using Editor.Utilities;
-using EngineAPIStructs;
 using System;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace EngineAPIStructs
+namespace Editor.EngineAPIStructs
 {
     [StructLayout(LayoutKind.Sequential)]
     class TransformComponent
@@ -35,7 +38,7 @@ namespace Editor.DLLWrapper
 {
     class EngineAPI
     {
-        private const string EngineDLL = "Engine.dll";
+        private const string EngineDLL = "EngineDLL.dll";
 
         [DllImport(EngineDLL, CharSet = CharSet.Ansi)]
         public static extern int LoadGameDLL(string dllpath);

@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Andrey Trepalin. 
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -12,7 +15,7 @@ namespace Editor.Utilities
     public class ID
     {
         public static int INVALID_ID => -1;
-        public static bool IsValid(int id) => id == INVALID_ID;
+        public static bool IsValid(int id) => id != INVALID_ID;
     }
 
     public static class MathUtils

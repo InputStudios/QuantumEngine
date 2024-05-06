@@ -1,4 +1,7 @@
-﻿using System.Configuration;
+﻿// Copyright (c) Andrey Trepalin. 
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+
+using System.Configuration;
 using System.Data;
 using System.Windows;
 

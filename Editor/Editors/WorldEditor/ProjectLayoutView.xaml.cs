@@ -1,4 +1,7 @@
-﻿using Editor.Components;
+﻿// Copyright (c) Andrey Trepalin. 
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+
+using Editor.Components;
 using Editor.Editors;
 using Editor.GameProject;
 using Editor.Utilities;

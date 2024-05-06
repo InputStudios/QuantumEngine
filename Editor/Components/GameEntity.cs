@@ -1,4 +1,7 @@
-﻿using Editor.DLLWrapper;
+﻿// Copyright (c) Andrey Trepalin. 
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+
+using Editor.DLLWrapper;
 using Editor.GameProject;
 using Editor.Utilities;
 using System;
@@ -89,7 +92,7 @@ namespace Editor.Components
         [DataMember(Name = nameof(Components))]
         private readonly ObservableCollection<Component> _components = new();
         public ReadOnlyObservableCollection<Component> Components { get; private set; }
-        public Component GetComponent(Type type) => Components.FirstOrDefault(x => x.GetType() == type);
+        public Component GetComponent(Type type) => Components.FirstOrDefault(c => c.GetType() == type);
         public T GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;
 
         [OnDeserialized]
