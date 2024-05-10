@@ -1,9 +1,12 @@
+// Copyright (c) Andrey Trepalin. 
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+
 #pragma once
 
 #include "CommonHeaders.h"
 
-namespace primal::math {
-	constexpr float pi = 3.14159265359f;
+namespace Quantum::math {
+	constexpr float pi = 3.1415926535897932384626433832795f;
 	constexpr float epsilon = 0e-5f;
 	#if defined(_WIN64)
 	using v2 = DirectX::XMFLOAT2;
@@ -18,7 +21,7 @@ namespace primal::math {
 	using s32v2 = DirectX::XMINT2;
 	using s32v3 = DirectX::XMINT3;
 	using s32v4 = DirectX::XMINT4;
-	using m3x3 = DirectX::XMFLOAT3X3;
+	using m3x3 = DirectX::XMFLOAT3X3; // NOTE: DirectXMath doesn't have aligned 3x3 matrices
 	using m4x4 = DirectX::XMFLOAT4X4;
 	using m4x4a = DirectX::XMFLOAT4X4A;
 #endif

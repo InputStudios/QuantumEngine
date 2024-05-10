@@ -1,14 +1,17 @@
+// Copyright (c) Andrey Trepalin. 
+// Distributed under the MIT license. See the LICENSE file in the project root for more information.
+
 #include "Transform.h"
 #include "Entity.h"
 
-namespace primal::transform {
+namespace Quantum::transform {
 	namespace {
-		utl::vector<math::v3> positions;
-		utl::vector<math::v4> rotations;
-		utl::vector<math::v3> scales;
+		util::vector<math::v3> positions;
+		util::vector<math::v4> rotations;
+		util::vector<math::v3> scales;
 	} // anonymous namespace
 
-	component create_transform(const init_info& info, game_entity::entity entity)
+	component create(init_info info, game_entity::entity entity)
 	{
 		assert(entity.is_valid());
 		const id::id_type entity_index{ id::index(entity.get_id()) };
@@ -30,7 +33,7 @@ namespace primal::transform {
 		return component(transform_id{ (id::id_type)positions.size() - 1 });
 	}
 
-	void remove_transform(component c)
+	void remove(component c)
 	{
 		assert(c.is_valid());
 	}
