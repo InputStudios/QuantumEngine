@@ -17,16 +17,10 @@ namespace Editor.Dictionaries
 
             if (e.Key == Key.Enter)
             {
-                if (textBox.Tag is ICommand command && command.CanExecute(textBox.Text))
-                {
-                    command.Execute(textBox.Text);
-                }
-                else
-                {
-                    exp.UpdateSource();
-                }
-                Keyboard.ClearFocus();
+                if (textBox.Tag is ICommand command && command.CanExecute(textBox.Text)) command.Execute(textBox.Text);
+                else exp.UpdateSource();
                 e.Handled = true;
+                Keyboard.ClearFocus();
             }
             else if (e.Key == Key.Escape)
             {

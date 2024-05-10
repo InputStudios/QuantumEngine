@@ -41,7 +41,7 @@ namespace Editor.Utilities
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                Logger.Log(MessageType.Info, $"Failed to deserialize {path}");
+                Logger.Log(MessageType.Error, $"Failed to deserialize {path}");
                 throw;
             }
         }

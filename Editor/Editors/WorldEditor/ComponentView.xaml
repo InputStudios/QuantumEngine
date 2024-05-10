@@ -8,10 +8,10 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
-            <Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush3}" />
+            <Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush3}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush4}" />
+                    <Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush4}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>

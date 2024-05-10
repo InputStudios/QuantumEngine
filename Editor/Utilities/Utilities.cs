@@ -47,7 +47,7 @@ namespace Editor.Utilities
         public static long AlignSizeUp(long size, long alignment)
         {
             Debug.Assert(alignment > 0, "Alignment must be non-zero");
-            long mask = alignment -1;
+            long mask = alignment - 1;
             Debug.Assert((alignment & mask) == 0, "Alignment must be a power of 2");
             return ((size + mask) & ~mask);
         }
@@ -57,7 +57,7 @@ namespace Editor.Utilities
             Debug.Assert(alignment > 0, "Alignment must be non-zero");
             long mask = alignment - 1;
             Debug.Assert((alignment & mask) == 0, "Alignment must be a power of 2");
-            return ((size + mask) & ~mask);
+            return (size & ~mask);
         }
 
         public static bool IsPow2(int x)

@@ -25,7 +25,7 @@ namespace Editor.Editors
         {
             var btn = sender as Button;
             var vm = btn.DataContext as Scene;
-            vm.AddGameEntityCommand.Execute(new GameEntity(vm) { Name = "Empty Game Entity" });
+            vm.AddGameEntityCommand.Execute(new GameEntity(vm) { Name = "New Game Entity" });
         }
 
         private void OnGameEntities_ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -36,12 +36,12 @@ namespace Editor.Editors
             var previousSelection = newSelection.Except(e.AddedItems.Cast<GameEntity>()).Concat(e.RemovedItems.Cast<GameEntity>()).ToList();
 
             Project.UndoRedo.Add(new UndoRedoAction(
-                () => // undo action
+                () => // Undo action
                 {
                     listBox.UnselectAll();
                     previousSelection.ForEach(x => (listBox.ItemContainerGenerator.ContainerFromItem(x) as ListBoxItem).IsSelected = true);
                 },
-                () => // redo action
+                () => // Redo action
                 {
                     listBox.UnselectAll();
                     newSelection.ForEach(x => (listBox.ItemContainerGenerator.ContainerFromItem(x) as ListBoxItem).IsSelected = true);
@@ -49,10 +49,7 @@ namespace Editor.Editors
                 "Selection changed"
                 ));
             MSEntity msEntity = null;
-            if (newSelection.Any())
-            {
-                msEntity = new MSGameEntity(newSelection);
-            }
+            if (newSelection.Any()) msEntity = new MSGameEntity(newSelection);
             GameEntityView.Instance.DataContext = msEntity;
         }
     }

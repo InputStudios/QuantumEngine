@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 
 namespace Editor.Components
 {
-    interface IMSComponent {}
+    interface IMSComponent { }
 
     [DataContract]
     abstract class Component : ViewModelBase
@@ -30,6 +30,7 @@ namespace Editor.Components
     {
         private bool _enableUpdates = true;
         public List<T> SelectedComponents { get; }
+
         protected abstract bool UpdateComponents(string propertyName);
         protected abstract bool UpdateMSComponent();
 

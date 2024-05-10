@@ -54,9 +54,10 @@ namespace Editor.Components
                 }
             }
         }
+
         public override IMSComponent GetMSComponent(MSEntity msEntity) => new MSTransform(msEntity);
 
-        public Transform(GameEntity owner) : base(owner) {}
+        public Transform(GameEntity owner) : base(owner) { }
     }
 
     sealed class MSTransform : MSComponent<Transform>
@@ -231,9 +232,6 @@ namespace Editor.Components
             return true;
         }
 
-        public MSTransform(MSEntity msEntity) : base(msEntity)
-        {
-            Refresh();
-        }
+        public MSTransform(MSEntity msEntity) : base(msEntity) { Refresh(); }
     }
 }

@@ -19,6 +19,9 @@ using System.Windows.Shapes;
 
 namespace Editor.Editors
 {
+    /// <summary>
+    /// Interaction logic for ComponentView.xaml
+    /// </summary>
     [ContentProperty("ComponentContent")]
     public partial class ComponentView : UserControl
     {
