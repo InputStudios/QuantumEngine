@@ -8,16 +8,29 @@
     <ClInclude Include="Components\ComponentsCommon.h" />
     <ClInclude Include="Components\Transform.h" />
     <ClInclude Include="Utilities\Utilities.h" />
-    <ClInclude Include="EngineAPI\GameEntity.h" />
     <ClInclude Include="EngineAPI\TransformComponent.h" />
     <ClInclude Include="Utilities\MathType.h" />
+    <ClInclude Include="Content\ContentLoader.h" />
+    <ClInclude Include="EngineAPI\ScriptComponent.h" />
+    <ClInclude Include="EngineAPI\GameEntity.h" />
+    <ClInclude Include="Platform\Window.h" />
+    <ClInclude Include="Platform\Platform.h" />
+    <ClInclude Include="Platform\PlatformTypes.h" />
+    <ClInclude Include="Graphics\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\Entity.cpp" />
     <ClCompile Include="Components\Transform.cpp" />
-    <ClCompile Include="EngineAPI\ScriptComponent.h" />
     <ClCompile Include="Components\Script.h" />
     <ClCompile Include="Components\Script.cpp" />
     <ClCompile Include="Core\Main.cpp" />
+    <ClCompile Include="Core\Engine.cpp" />
+    <ClCompile Include="Content\ContentLoader.cpp" />
+    <ClCompile Include="Platform\Platform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Content">
+      <UniqueIdentifier>{f1d47d93-7802-473b-939d-13e8bdd26338}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

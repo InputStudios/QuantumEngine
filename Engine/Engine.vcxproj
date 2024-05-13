@@ -25,8 +25,14 @@
     <ClInclude Include="Components\ComponentsCommon.h" />
     <ClInclude Include="Components\Entity.h" />
     <ClInclude Include="Components\Transform.h" />
+    <ClInclude Include="Content\ContentLoader.h" />
     <ClInclude Include="EngineAPI\GameEntity.h" />
+    <ClInclude Include="EngineAPI\ScriptComponent.h" />
     <ClInclude Include="EngineAPI\TransformComponent.h" />
+    <ClInclude Include="Graphics\Renderer.h" />
+    <ClInclude Include="Platform\Platform.h" />
+    <ClInclude Include="Platform\PlatformTypes.h" />
+    <ClInclude Include="Platform\Window.h" />
     <ClInclude Include="Utilities\MathType.h" />
     <ClInclude Include="Utilities\Utilities.h" />
   </ItemGroup>
@@ -35,8 +41,10 @@
     <ClCompile Include="Components\Script.h" />
     <ClCompile Include="Components\Script.cpp" />
     <ClCompile Include="Components\Transform.cpp" />
+    <ClCompile Include="Content\ContentLoader.cpp" />
+    <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Core\Main.cpp" />
-    <ClCompile Include="EngineAPI\ScriptComponent.h" />
+    <ClCompile Include="Platform\Platform.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

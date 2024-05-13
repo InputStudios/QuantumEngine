@@ -6,7 +6,6 @@
 #include "..\Components\ComponentsCommon.h"
 #include "TransformComponent.h"
 #include "ScriptComponent.h"
-#include <string>
 
 namespace Quantum {
     namespace game_entity {
@@ -46,7 +45,7 @@ namespace Quantum {
 #ifdef USE_WITH_EDITOR
             extern "C" __declspec(dllexport)
 #endif // USE_WITH_EDITOR
-            script_creator get_script_creator(size_t tag);
+                script_creator get_script_creator(size_t tag);
 
             template<class script_class>
             script_ptr create_script(game_entity::entity entity)
@@ -57,16 +56,16 @@ namespace Quantum {
 #ifdef USE_WITH_EDITOR
             u8 add_script_name(const char* name);
 
-#define REGISTER_SCRIPT(TYPE)                                              \
-            class TYPE;                                                    \
-            namespace {                                                    \
-            const u8 _reg##TYPE                                            \
-            { Quantum::script::detail::register_script(                    \
-                 Quantum::script::detail::string_hash()(#TYPE),            \
-                 &Quantum::script::detail::create_script<TYPE>) };         \
+#define REGISTER_SCRIPT(TYPE)                                                                 \
+            class TYPE;                                                                       \
+            namespace {                                                                       \
+                const u8 _reg##TYPE                                                           \
+                { Quantum::script::detail::register_script(                                   \
+                     Quantum::script::detail::string_hash()(#TYPE),                           \
+                     &Quantum::script::detail::create_script<TYPE>) };                        \
+                const u8 _name_##TYPE Quantum::script::detail::add_script_name(#TYPE) ;       \
             }
-            const u8 _name_##TYPE
-            { Quantum::script::detail::add_script_name(#TYPE) };
+            
 #else
 #define REGISTER_SCRIPT(TYPE)                                              \
             class TYPE;                                                    \
