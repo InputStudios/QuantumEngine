@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +34,8 @@ namespace Editor.Utilities
         }
 
         private RenderSurfaceHost _host = null;
+        private bool _canResize = true;
+        private bool _moved = false;
 
         public RenderSurfaceView()
         {
@@ -47,6 +50,40 @@ namespace Editor.Utilities
             _host = new RenderSurfaceHost(ActualWidth, ActualHeight);
             _host.MessageHook += new HwndSourceHook(HostMsgFiler);
             Content = _host;
+
+            var window = this.FindVisualParent<Window>();
+            Debug.Assert(window != null);
+
+            var helper = new WindowInteropHelper(window);
+            if (helper.Handle != null)
+            {
+                HwndSource.FromHwnd(helper.Handle)?.AddHook(HwndMessageHook);
+            }
+        }
+
+        private nint HwndMessageHook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+        {
+            switch ((Win32Msg)msg)
+            {
+                case Win32Msg.WM_SIZEING:
+                    _canResize = false;
+                    _moved = false;
+                    break;
+                case Win32Msg.WM_ENTERSIZEMOVE:
+                    _moved = true;
+                    break;
+                case Win32Msg.WM_EXITSIZEMOVE:
+                    _canResize = true;
+                    if (!_moved)
+                    {
+                        _host.Resize();
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return IntPtr.Zero;
         }
 
         private nint HostMsgFiler(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -57,7 +94,10 @@ namespace Editor.Utilities
                 case Win32Msg.WM_ENTERSIZEMOVE: throw new Exception();
                 case Win32Msg.WM_EXITSIZEMOVE: throw new Exception();
                 case Win32Msg.WM_SIZE:
-                    _host.Resize();
+                    if (_canResize)
+                    {
+                        _host.Resize();
+                    }
                     break;
                 default:
                     break;
@@ -65,7 +105,6 @@ namespace Editor.Utilities
 
             return IntPtr.Zero;
         }
-
 
         #region IDisposable support
         private bool _disposedValue;
