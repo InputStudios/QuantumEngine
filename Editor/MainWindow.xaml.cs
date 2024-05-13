@@ -14,12 +14,20 @@ namespace Editor
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static string QuantumPath { get; private set; }
         public MainWindow()
         {
             InitializeComponent();
             Loaded += OnMainWindowLoaded;
             Closing += OnMainWindowClosing;
+        }
+
+        public static string QuantumPath { get; private set; }
+
+        private void OnMainWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= OnMainWindowLoaded;
+            GetEnginePath();
+            OpenProjectBrowserDialog();
         }
 
         private void OnMainWindowClosing(object? sender, CancelEventArgs e)
@@ -29,17 +37,10 @@ namespace Editor
             Project.Current?.Unload();
         }
 
-        private void OnMainWindowLoaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= OnMainWindowLoaded;
-            GetEnginePath();
-            OpenProjectBrowserDialog();
-        }
-
         private void GetEnginePath()
         {
-            var quantumPath = Environment.GetEnvironmentVariable("QUANTUM_ENGINE", EnvironmentVariableTarget.User);
-            if (quantumPath == null || !Directory.Exists(Path.Combine(quantumPath, @"Engine\EngineAPI")))
+            var enginePath = Environment.GetEnvironmentVariable("QUANTUM_ENGINE", EnvironmentVariableTarget.User);
+            if (enginePath == null || !Directory.Exists(Path.Combine(enginePath, @"Engine\EngineAPI\")))
             {
                 var dlg = new EnginePathDialog();
                 if (dlg.ShowDialog() == true)
@@ -47,15 +48,9 @@ namespace Editor
                     QuantumPath = dlg.QuantumPath;
                     Environment.SetEnvironmentVariable("QUANTUM_ENGINE", QuantumPath.ToUpper(), EnvironmentVariableTarget.User);
                 }
-                else
-                {
-                    Application.Current.Shutdown();
-                }
+                else Application.Current.Shutdown();
             }
-            else 
-            {
-                QuantumPath = quantumPath;
-            }
+            else QuantumPath = enginePath;
         }
 
         private void OpenProjectBrowserDialog()

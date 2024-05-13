@@ -39,7 +39,7 @@ namespace Editor.DLLWrapper
 {
     static class EngineAPI
     {
-        private const string EngineDLL = "EngineDLL.dll";
+        private const string EngineDLL = "EngineDll.dll";
 
         [DllImport(EngineDLL, CharSet = CharSet.Ansi)]
         public static extern int LoadGameCodeDll(string dllpath);
@@ -58,13 +58,13 @@ namespace Editor.DLLWrapper
         public static extern int CreateRenderSurface(IntPtr host, int width, int height);
 
         [DllImport(EngineDLL)]
-        public static extern void RemoveRenderSurface(int surfaceID);
+        public static extern void RemoveRenderSurface(int surfaceId);
 
         [DllImport(EngineDLL)]
-        public static extern IntPtr GetWindowHandle(int surfaceID);
+        public static extern IntPtr GetWindowHandle(int surfaceId);
 
         [DllImport(EngineDLL)]
-        public static extern void ResizeRenderSurface(int surfaceID);
+        public static extern void ResizeRenderSurface(int surfaceId);
 
         internal static class EntityAPI
         {

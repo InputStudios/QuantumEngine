@@ -18,6 +18,9 @@
         <KeyBinding Command="{Binding UndoCommand}" Key="Z" Modifiers="Ctrl"/>
         <KeyBinding Command="{Binding RedoCommand}" Key="Z" Modifiers="Ctrl+Shift"/>
         <KeyBinding Command="{Binding SaveCommand}" Key="S" Modifiers="Ctrl"/>
+        <KeyBinding Command="{Binding DebugStartCommand}" CommandParameter="{StaticResource True}" Key="F5"/>
+        <KeyBinding Command="{Binding DebugStartWithoutDebuggingCommand}" CommandParameter="{StaticResource True}" Key="F7" Modifiers="Ctrl"/>
+        <KeyBinding Command="{Binding DebugStopCommand}" CommandParameter="{StaticResource True}" Key="F5" Modifiers="Shift"/>
         <KeyBinding Command="{Binding BuildCommand}" CommandParameter="{StaticResource True}" Key="F7"/>
     </UserControl.InputBindings>
     <Grid>
@@ -48,19 +51,10 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Border Background="{StaticResource Editor.Selected.BackgroundBrush}">
-                    <StackPanel VerticalAlignment="Center">
-                        <ctrl:NumberBox Value="0" Foreground="{StaticResource Editor.FontBrush}" />
-                        <ctrl:ScalarBox Value="10" Multiplier="10" />
-                        <ctrl:VectorBox X="0" Y="1" Z="2" W="3" VectorType="Vector2" />
-                        <ctrl:VectorBox X="0" Y="1" Z="2" W="3" VectorType="Vector3" />
-                        <ctrl:VectorBox X="0" Y="1" Z="2" W="3" VectorType="Vector4" />
-
-                        <ctrl:VectorBox X="0" Y="1" Z="2" W="3" VectorType="Vector2" Orientation="Vertical" />
-                        <ctrl:VectorBox X="0" Y="1" Z="2" W="3" VectorType="Vector3" Orientation="Vertical" />
-                        <ctrl:VectorBox X="0" Y="1" Z="2" W="3" VectorType="Vector4" Orientation="Vertical" />
-                    </StackPanel>
-                </Border>
+                <util:RenderSurfaceView/>
+                <!--<Border Background="{StaticResource Editor.Selected.BackgroundBrush}">
+                    
+                </Border>-->
                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" 
                               VerticalAlignment="Top" Background="Transparent"/>
                 <Grid Grid.Row="1" Margin="0,5,0,0">

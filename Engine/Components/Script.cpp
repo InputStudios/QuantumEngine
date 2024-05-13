@@ -10,7 +10,7 @@ namespace Quantum::script {
         util::vector<id::id_type>            id_mapping;
 
         util::vector<id::generation_type>    generations;
-        util::vector<script_id>              free_ids;
+        util::deque<script_id>               free_ids;
 
         using script_registry = std::unordered_map<size_t, detail::script_creator>;
         script_registry& registry()
@@ -61,7 +61,7 @@ namespace Quantum::script {
         }
 
 #ifdef USE_WITH_EDITOR
-        u8 add_script_name(cons char* name)
+        u8 add_script_name(const char* name)
         {
             script_names().emplace_back(name);
             return true;
@@ -80,7 +80,7 @@ namespace Quantum::script {
         {
             id = free_ids.front();
             assert(!exists(id));
-            free_ids.pop_back();
+            free_ids.pop_front();
             id = script_id{ id::new_generation(id) };
             ++generations[id::index(id)];
         }
@@ -109,6 +109,14 @@ namespace Quantum::script {
         id_mapping[id::index(last_id)] = index;
         id_mapping[id::index(id)] = id::invalid_id;
     }
+
+    void update(float dt)
+    {
+        for (auto& ptr : entity_scripts)
+        {
+            ptr->update(dt);
+        }
+    }
 }
 
 #ifdef USE_WITH_EDITOR
@@ -122,7 +130,7 @@ LPSAFEARRAY get_script_names()
     CComSafeArray<BSTR> names(size);
     for (u32 i{ 0 }; i < size; i++)
     {
-        names.SetAt(i, A2BSTR_EX(Quantum::script::script_names()[i].c_str()), fasle);
+        names.SetAt(i, A2BSTR_EX(Quantum::script::script_names()[i].c_str()), false);
     }
     return names.Detach();
 }

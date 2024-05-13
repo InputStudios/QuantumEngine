@@ -26,11 +26,12 @@ namespace Editor.GameDev
         
 namespace {1} {{
     REGISTER_SCRIPT({0});
+
     void {0}::begin(float dt) {{
         // Initialization
     }}
     void {0}::update(float dt) {{
-        / /Called every frame
+        // Called every frame
     }}
 }} // namespace {1}";
 

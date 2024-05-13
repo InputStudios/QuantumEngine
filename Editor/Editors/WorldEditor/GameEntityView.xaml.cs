@@ -131,17 +131,17 @@ namespace Editor.Editors
                 vm.Refresh();
 
                 Project.UndoRedo.Add(new UndoRedoAction(
-                () =>
-                {
-                    changedEntities.ForEach(x => x.entity.RemoveComponent(x.component));
-                    (DataContext as MSEntity).Refresh();
-                },
-                () =>
-                {
-                    changedEntities.ForEach(x => x.entity.AddComponent(x.component));
-                    (DataContext as MSEntity).Refresh();
-                },
-                $"Add {componentType} component"));
+                    () =>
+                    {
+                        changedEntities.ForEach(x => x.entity.RemoveComponent(x.component));
+                        (DataContext as MSEntity).Refresh();
+                    },
+                    () =>
+                    {
+                        changedEntities.ForEach(x => x.entity.AddComponent(x.component));
+                        (DataContext as MSEntity).Refresh();
+                    },
+                    $"Add {componentType} component"));
             }
         }
 

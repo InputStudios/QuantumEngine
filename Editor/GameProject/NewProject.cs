@@ -68,7 +68,6 @@ namespace Editor.GameProject
         }
 
         private bool _isValid;
-
         public bool IsValid
         {
             get => _isValid;
@@ -83,7 +82,6 @@ namespace Editor.GameProject
         }
 
         private string _errorMsg;
-
         public string ErrorMsg
         {
             get => _errorMsg;
@@ -105,16 +103,11 @@ namespace Editor.GameProject
             var path = ProjectPath;
             if (!Path.EndsInDirectorySeparator(path)) path += @"\";
             path += $@"{ProjectName}\";
-            var nameRegex = new Regex(@"^[A-Za-z_][A-Za-z0-9_]*$");
 
             IsValid = false;
             if (string.IsNullOrWhiteSpace(ProjectName.Trim()))
             {
                 ErrorMsg = "Type in a project name.";
-            }
-            else if (!nameRegex.IsMatch(ProjectName))
-            {
-                ErrorMsg = "Invalid character(s) in project name";
             }
             else if (ProjectName.IndexOfAny(Path.GetInvalidPathChars()) != -1)
             {
@@ -197,7 +190,7 @@ namespace Editor.GameProject
 
             var project = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
             project = string.Format(project, _0, _1, _2, _3);
-            File.WriteAllText(Path.GetFullPath(Path.Combine(projectPath, $@"GameCode\{_0}.vcxproj")), project);
+            File.WriteAllText(Path.GetFullPath(Path.Combine(projectPath, @$"GameCode\{_0}.vcxproj")), project);
         }
 
         public NewProject()
