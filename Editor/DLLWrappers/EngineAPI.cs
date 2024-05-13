@@ -35,7 +35,7 @@ namespace Editor.EngineAPIStructs
     }
 }
 
-namespace Editor.DLLWrapper
+namespace Editor.DLLWrappers
 {
     static class EngineAPI
     {

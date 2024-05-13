@@ -2,7 +2,7 @@
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
 using Editor.Components;
-using Editor.DLLWrapper;
+using Editor.DLLWrappers;
 using Editor.GameDev;
 using Editor.Utilities;
 using System;

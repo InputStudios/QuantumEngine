@@ -47,6 +47,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Include="Content\Asset.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="envdte" Version="17.9.37000" />
 	  <PackageReference Include="envdte80" Version="17.9.37000" />
 	</ItemGroup>
