@@ -9,7 +9,7 @@
     <ClInclude Include="Components\Transform.h" />
     <ClInclude Include="Utilities\Utilities.h" />
     <ClInclude Include="EngineAPI\TransformComponent.h" />
-    <ClInclude Include="Utilities\MathType.h" />
+    <ClInclude Include="Utilities\MathTypes.h" />
     <ClInclude Include="Content\ContentLoader.h" />
     <ClInclude Include="EngineAPI\ScriptComponent.h" />
     <ClInclude Include="EngineAPI\GameEntity.h" />
@@ -17,6 +17,7 @@
     <ClInclude Include="Platform\Platform.h" />
     <ClInclude Include="Platform\PlatformTypes.h" />
     <ClInclude Include="Graphics\Renderer.h" />
+    <ClInclude Include="Utilities\Math.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\Entity.cpp" />
