@@ -9,7 +9,7 @@
 		<BaseOutputPath>..\</BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
-		<Configurations>Debug;Release;DebugEditor;ReleaseEditor</Configurations>
+		<Configurations>DebugEditor;ReleaseEditor</Configurations>
 		<Platforms>x64</Platforms>
 	</PropertyGroup>
 
@@ -27,10 +27,6 @@
     <PlatformTarget>x64</PlatformTarget>
 	  <WarningLevel>7</WarningLevel>
     <Optimize>True</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-	  <Optimize>False</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>
