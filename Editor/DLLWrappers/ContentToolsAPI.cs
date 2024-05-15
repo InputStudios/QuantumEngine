@@ -47,7 +47,7 @@ namespace Editor.ContentToolSAPIStructs
     [StructLayout(LayoutKind.Sequential)]
     class PrimitiveInitInfo
     {
-        public Content.PrimitiveMehType Type;
+        public Content.PrimitiveMeshType Type;
         public int SegmentX = 1;
         public int SegmentY = 1;
         public int SegmentZ = 1;
