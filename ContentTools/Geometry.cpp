@@ -12,7 +12,7 @@ namespace Quantum::tools {
         void recalculate_normals(mesh& m)
         {
             const u32 num_indices{ (u32)m.raw_indices.size() };
-            m.normals.reserve(num_indices);
+            m.normals.resize(num_indices);
 
             for (u32 i{ 0 }; i < num_indices; ++i)
             {
@@ -56,7 +56,7 @@ namespace Quantum::tools {
                 for (u32 j{ 0 }; j < num_refs; ++j)
                 {
                     m.indices[refs[j]] = (u32)m.vertices.size();
-                    vertex& v{ m.vertices.emplace_back(i) };
+                    vertex& v{ m.vertices.emplace_back() };
                     v.position = m.positions[m.raw_indices[refs[j]]];
 
                     XMVECTOR n1{ XMLoadFloat3(&m.normals[refs[j]]) };
@@ -92,8 +92,7 @@ namespace Quantum::tools {
             }
         }
 
-        void process_uvs(mesh& m)
-        {
+        void process_uvs(mesh& m) {
             util::vector<vertex> old_vertices;
             old_vertices.swap(m.vertices);
             util::vector<u32> old_indices(m.indices.size());
@@ -107,7 +106,7 @@ namespace Quantum::tools {
             for (u32 i{ 0 }; i < num_vertices; ++i)
                 idx_ref[old_indices[i]].emplace_back(i);
 
-            for (u32 i{ 0 }; i < num_indices; ++i)
+            for (u32 i{ 0 }; i < num_vertices; ++i)
             {
                 auto& refs{ idx_ref[i] };
                 u32 num_refs{ (u32)refs.size() };
@@ -124,18 +123,17 @@ namespace Quantum::tools {
                         if (XMScalarNearEqual(v.uv.x, uv1.x, epsilon) &&
                             XMScalarNearEqual(v.uv.y, uv1.y, epsilon))
                         {
-                                m.indices[refs[k]] = m.indices[refs[j]];
-                                refs.erase(refs.begin() + k);
-                                --num_refs;
-                                --k;
+                            m.indices[refs[k]] = m.indices[refs[j]];
+                            refs.erase(refs.begin() + k);
+                            --num_refs;
+                            --k;
                         }
                     }
                 }
             }
         }
 
-        void pack_vertices_static(mesh& m)
-        {
+        void pack_vertices_static(mesh& m) {
             const u32 num_vertices{ (u32)m.vertices.size() };
             assert(num_vertices);
             m.packed_vertices_static.reserve(num_vertices);
