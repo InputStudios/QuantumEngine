@@ -27,8 +27,7 @@ namespace {
     util::vector<graphics::render_surface> surfaces;
 } // anonymous namespace
 
-EDITOR_INTERFACE u32 LoadGameCodeDll(const char* dll_path)
-{
+EDITOR_INTERFACE u32 LoadGameCodeDll(const char* dll_path) {
     if (game_code_dll) return FALSE;
     game_code_dll = LoadLibraryA(dll_path);
     assert(game_code_dll);
@@ -39,8 +38,7 @@ EDITOR_INTERFACE u32 LoadGameCodeDll(const char* dll_path)
     return (game_code_dll && get_script_creator && get_script_names) ? TRUE : FALSE;
 }
 
-EDITOR_INTERFACE u32 UnloadGameCodeDll(const char* dll_path)
-{
+EDITOR_INTERFACE u32 UnloadGameCodeDll() {
     if (!game_code_dll) return FALSE;
     assert(game_code_dll);
     int result{ FreeLibrary(game_code_dll) };
@@ -54,7 +52,7 @@ EDITOR_INTERFACE script::detail::script_creator GetScriptCreator(const char* nam
 }
 
 EDITOR_INTERFACE LPSAFEARRAY GetScriptNames() {
-    return (game_code_dll && get_script_creator) ? get_script_names() : nullptr;
+    return (game_code_dll && get_script_names) ? get_script_names() : nullptr;
 }
 
 EDITOR_INTERFACE u32 CreateRenderSurface(HWND host, s32 width, s32 height) {
@@ -78,5 +76,5 @@ EDITOR_INTERFACE HWND GetWindowHandle(u32 id) {
 
 EDITOR_INTERFACE void ResizeRenderSurface(u32 id) {
     assert(id < surfaces.size());
-    surfaces[id].window.resize(0, 0);
+    surfaces[id].window.resize(NULL, NULL);
 }
