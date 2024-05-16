@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
+using Editor.Content;
 using Editor.ContentToolSAPIStructs;
+using Editor.Properties;
 using Editor.Utilities;
 using System;
 using System.Collections.Generic;
@@ -17,23 +19,36 @@ namespace Editor.ContentToolSAPIStructs
     [StructLayout(LayoutKind.Sequential)]
     class GeometryImportSettings
     {
-        public float SmothingAngle = 178f;
+        public float SmoothingAngle = 178f;
         public byte CalculateNormals = 0;
         public byte CalculateTangents = 1;
         public byte ReverseHandedness = 0;
         public byte ImportEmbededTextures = 1;
         public byte ImportAnimations = 1;
+
+        private byte ToByte(bool value) => value ? (byte)1 : (byte)0;
+
+        public void FromContentSettings(Content.Geometry geometry)
+        {
+            var settings = geometry.ImportSettings;
+
+            SmoothingAngle = settings.SmoothingAngle;
+            CalculateNormals = ToByte(settings.CalculateNormals);
+            CalculateTangents = ToByte(settings.CalculateTangents);
+            ReverseHandedness = ToByte(settings.ReverseHandedness);
+            ImportEmbededTextures = ToByte(settings.ImportEmbeddedTextures);
+            ImportAnimations = ToByte(settings.ImportAnimations);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    class SceneData : IDisposable
+    class SceneData : IDisposable 
     {
         public IntPtr Data;
         public int DataSize;
         public GeometryImportSettings ImportSettings = new GeometryImportSettings();
 
-        public void Dispose()
-        {
+        public void Dispose() {
             Marshal.FreeCoTaskMem(Data);
             GC.SuppressFinalize(this);
         }
@@ -56,7 +71,7 @@ namespace Editor.ContentToolSAPIStructs
     }
 }
 
-namespace Editor.DLLWrappers
+namespace Editor.DLLWrappers 
 {
     static class ContentToolsAPI
     {
@@ -70,11 +85,12 @@ namespace Editor.DLLWrappers
             using var sceneData = new SceneData();
             try
             {
+                sceneData.ImportSettings.FromContentSettings(geometry);
                 CreatePrimitiveMesh(sceneData, info);
                 Debug.Assert(sceneData.Data != IntPtr.Zero && sceneData.DataSize > 0);
                 var data = new byte[sceneData.DataSize];
                 Marshal.Copy(sceneData.Data, data, 0, sceneData.DataSize);
-
+                geometry.FromRawData(data);
             }
             catch (Exception ex)
             {

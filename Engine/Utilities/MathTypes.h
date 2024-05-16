@@ -7,8 +7,9 @@
 
 namespace Quantum::math {
 	constexpr float pi = 3.1415926535897932384626433832795f;
+    constexpr float two_pi = 2.f * pi;
 	constexpr float epsilon = 0e-5f;
-	#if defined(_WIN64)
+#if defined(_WIN64)
 	using v2 = DirectX::XMFLOAT2;
 	using v2a = DirectX::XMFLOAT2A;
 	using v3 = DirectX::XMFLOAT3;

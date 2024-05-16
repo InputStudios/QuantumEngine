@@ -5,8 +5,7 @@
 #include "ToolsCommon.h"
 
 namespace Quantum::tools {
-    enum primitive_mesh_type : u32
-    {
+    enum primitive_mesh_type : u32 {
         plane,
         cube,
         uv_sphere,
