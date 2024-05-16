@@ -4,12 +4,15 @@
 #pragma comment(lib, "Engine.lib")
 
 #define TEST_ENTITY_COMPONENTS 0
-#define TEST_WINDOW 1
+#define TEST_WINDOW 0
+#define TEST_RENDERER 1
 
 #if TEST_ENTITY_COMPONENTS
 #include "TestEntityComponent.h"
 #elif TEST_WINDOW
 #include "TestWindow.h"
+#elif TEST_RENDERER
+#include "TestRenderer.h"
 #else
 #error One of the tests need to be enabled
 #endif
@@ -22,11 +25,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
     engine_test test{};
-
-    if (test.initialize()) {
+    if (test.initialize()) 
+    {
         MSG msg{};
         bool is_running{ true };
-        while (is_running) {
+        while (is_running) 
+        {
             while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
