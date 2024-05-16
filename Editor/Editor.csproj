@@ -4,9 +4,10 @@
 		<OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
 		<Nullable>enable</Nullable>
+		<XamlDebuggingInformation>True</XamlDebuggingInformation>
 		<UseWPF>true</UseWPF>
 		<PlatformTarget>x64</PlatformTarget>
-		<BaseOutputPath>..\</BaseOutputPath>
+		<BaseOutputPath></BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
 		<Configurations>DebugEditor;ReleaseEditor</Configurations>
@@ -31,11 +32,16 @@
 
 	<ItemGroup>
     <None Remove="MainWindow.xaml" />
-	  <Content Include="Resources\app_icon.ico" />
+    <None Remove="Resources\PrimitiveMeshView\Checkmap.png" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <EditorConfigFiles Remove="D:\Programming\Languages\C++\Projects\QuantumEngine\Editor\.editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Resources\PrimitiveMeshView\Checkmap.png" />
+	  <Resource Include="Resources\PrimitiveMeshView\PlaneTexture.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -68,6 +74,10 @@
 	    <Generator>SettingsSingleFileGenerator</Generator>
 	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Resources\app_icon.ico" />
 	</ItemGroup>
 
 </Project>

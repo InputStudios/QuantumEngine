@@ -59,8 +59,8 @@
                 <Rectangle.Fill>
                     <RadialGradientBrush GradientOrigin="0.5,1" Center="0.5,1" RadiusY="2">
                         <RadialGradientBrush.GradientStops>
-                            <GradientStop Color="White" Offset="0" />
-                            <GradientStop Color="Transparent" Offset="1" />
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
                         </RadialGradientBrush.GradientStops>
                     </RadialGradientBrush>
                 </Rectangle.Fill>
@@ -89,16 +89,16 @@
         </Rectangle>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
             <ToggleButton Content="OPEN PROJECT" x:Name="openProjectButton" Margin="10,20,0,20"
-                          IsChecked="True" Click="OnToggleButton_Click" />
+                          IsChecked="True" Click="OnToggleButton_Click"/>
             <ToggleButton Content="NEW PROJECT" x:Name="newProjectButton" Margin="40,20,0,20" 
-                          IsChecked="False" Click="OnToggleButton_Click" />
+                          IsChecked="False" Click="OnToggleButton_Click"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="1" x:Name="browserContent">
             <StackPanel.Effect>
-                <DropShadowEffect Opacity="0.6" BlurRadius="13" ShadowDepth="2" />
+                <DropShadowEffect Opacity="0.6" BlurRadius="15" ShadowDepth="2"/>
             </StackPanel.Effect>
-            <local:OpenProjectView x:Name="openProjectView" />
-            <local:NewProjectView x:Name="newProjectView" Margin="800,0,0,0" />
+            <local:OpenProjectView x:Name="openProjectView"/>
+            <local:NewProjectView x:Name="newProjectView" IsEnabled="False" Margin="800,0,0,0" />
         </StackPanel>
     </Grid>
 </Window>

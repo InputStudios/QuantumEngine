@@ -17,43 +17,25 @@
 #ifdef _WIN64
 #include <Windows.h>
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
-{
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #if _DEBUG
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
     engine_test test{};
-    if (test.initialize())
-    {
+
+    if (test.initialize()) {
         MSG msg{};
         bool is_running{ true };
-        while (is_running)
-        {
-            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-            {
+        while (is_running) {
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
                 is_running &= (msg.message != WM_QUIT);
             }
-            
             test.run();
         }
     }
     test.shutdown();
     return 0;
-}
-
-int main() {
-#if _DEBUG
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
-	engine_test test{};
-
-	if (test.initialize()) 
-	{
-		test.run();
-	}
-
-	test.shutdown();
 }
 #endif // _WIN64
