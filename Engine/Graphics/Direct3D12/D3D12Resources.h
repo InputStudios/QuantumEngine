@@ -32,6 +32,7 @@ namespace Quantum::graphics::d3d12 {
 
         bool initialize(u32 capacity, bool is_shader_visible);
         void release();
+        void process_deferred_free(u32 frame_idx);
 
         [[nodicard]] descriptor_handle allocate();
         void free(descriptor_handle& handle);
@@ -50,6 +51,7 @@ namespace Quantum::graphics::d3d12 {
         D3D12_CPU_DESCRIPTOR_HANDLE         _cpu_start{};
         D3D12_GPU_DESCRIPTOR_HANDLE         _gpu_start{};
         std::unique_ptr<u32[]>              _free_handles{};
+        std::vector<u32>                    _deferred_free_indices[frame_buffer_count]{};
         std::mutex                          _mutex{};
         u32                                 _capacity{};
         u32                                 _size{ 0 };
