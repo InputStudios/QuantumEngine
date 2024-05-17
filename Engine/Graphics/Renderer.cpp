@@ -34,4 +34,9 @@ namespace Quantum::graphics {
     {
         gfx.shutdown();
     }
+
+    void render()
+    {
+        gfx.render();
+    }
 }

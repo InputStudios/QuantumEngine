@@ -10,5 +10,6 @@ namespace Quantum::graphics {
     {
         bool(*initialize)(void);
         void(*shutdown)(void);
+        void(*render)(void);
     };
 }

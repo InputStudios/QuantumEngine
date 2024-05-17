@@ -1,11 +1,9 @@
 // Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
-#pragma comment(lib, "Engine.lib")
+#include "Test.h"
 
-#define TEST_ENTITY_COMPONENTS 0
-#define TEST_WINDOW 0
-#define TEST_RENDERER 1
+#pragma comment(lib, "Engine.lib")
 
 #if TEST_ENTITY_COMPONENTS
 #include "TestEntityComponent.h"
