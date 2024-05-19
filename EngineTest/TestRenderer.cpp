@@ -69,7 +69,7 @@ void destroy_render_surface(graphics::render_surface& surface)
     surface = {};
 
     if (temp.surface.is_valid())graphics::remove_surface(surface.surface.get_id());
-    if (temp.surface.is_valid())platform::remove_window(surface.window.get_id());
+    if (temp.window.is_valid())platform::remove_window(surface.window.get_id());
 }
 
 bool engine_test::initialize()

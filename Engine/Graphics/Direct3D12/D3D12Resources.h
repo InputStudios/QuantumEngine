@@ -34,7 +34,7 @@ namespace Quantum::graphics::d3d12 {
         void release();
         void process_deferred_free(u32 frame_idx);
 
-        [[nodicard]] descriptor_handle allocate();
+        [[nodiscard]] descriptor_handle allocate();
         void free(descriptor_handle& handle);
 
         constexpr D3D12_DESCRIPTOR_HEAP_TYPE type() const { return _type; }
