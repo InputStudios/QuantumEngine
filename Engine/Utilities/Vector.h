@@ -104,9 +104,9 @@ namespace Quantum::util {
              }
              assert(_size < +_capacity);
 
-             new (std::addressof(_data[_size])) T(std::forward<params>(p)...);
+             T* const item{ new (std::addressof(_data[_size])) T(std::forward<params>(p)...) };
              ++_size;
-             return _data[_size - 1];
+             return *item;
          }
 
          // Resizes the vector and initializes new items with their default value.
@@ -153,6 +153,8 @@ namespace Quantum::util {
                  {
                      destruct_range(new_size, _size);
                  }
+
+                 _size = new_size;
              }
 
              // Do nothing if new_size == _size
@@ -230,14 +232,14 @@ namespace Quantum::util {
              _size = 0;
          }
 
-         // Swap two vectors
+         // Swaps two vectors
          constexpr void swap(vector& o)
          {
              if (this != std::addressof(o))
              {
-                 auto temp(o);
-                 o = *this;
-                 *this = temp;
+                 auto temp(std::move(o));
+                 omove(*this);
+                 move(temp);
              }
          }
 
