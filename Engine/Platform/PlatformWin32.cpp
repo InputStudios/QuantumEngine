@@ -1,12 +1,12 @@
 // Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
+#ifdef _WIN64
 #include "Platform.h"
 #include "PlatformTypes.h"
 
 namespace Quantum::platform {
 
-#ifdef _WIN64
     namespace {
         struct window_info {
             HWND      hwnd{ nullptr };
@@ -108,6 +108,7 @@ namespace Quantum::platform {
 
         void set_window_fullscreen(window_id id, bool is_fullscreen) {
             window_info& info{ get_from_id(id) };
+
             if (info.is_fullscreen != is_fullscreen)
             {
                 info.is_fullscreen = is_fullscreen;
@@ -172,12 +173,12 @@ namespace Quantum::platform {
         WNDCLASSEX wc;
         ZeroMemory(&wc, sizeof(wc));
         wc.cbSize = sizeof(WNDCLASSEX);
-        wc.style =- CS_HREDRAW | CS_VREDRAW;
+        wc.style = CS_HREDRAW | CS_VREDRAW;
         wc.lpfnWndProc = internal_window_proc;
         wc.cbClsExtra = 0;
         wc.cbWndExtra = callback ? sizeof(callback) : 0;
         wc.hInstance = 0;
-        wc.hIcon - LoadIcon(NULL, IDI_APPLICATION);
+        wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
         wc.hCursor = LoadCursor(NULL, IDC_ARROW);
         wc.hbrBackground = CreateSolidBrush(RGB(26,48,76));
         wc.lpszMenuName= NULL;
@@ -238,60 +239,8 @@ namespace Quantum::platform {
         DestroyWindow(info.hwnd);
         windows.remove(id);
     }
-    #else
-    #error "must implement at least one platform"
-    #endif // _WIN64
-
-    void window::set_fullscreen(bool is_fullscreen) const 
-    {
-        assert(is_valid());
-        set_window_fullscreen(_id, is_fullscreen);
-    }
-
-    bool window::is_fullscreen() const 
-    {
-        assert(is_valid());
-        return is_window_fullscreen(_id);
-    }
-
-    void* window::handle() const 
-    {
-        assert(is_valid());
-        return get_window_handle(_id);
-    }
-    void window::set_caption(const wchar_t* caption) const 
-    {
-        assert(is_valid());
-        set_window_caption(_id, caption);
-    }
-
-    math::u32v4 window::size() const 
-    {
-        assert(is_valid());
-        return get_window_size(_id);
-    }
-
-    void window::resize(u32 width, u32 height) const 
-    {
-        assert(is_valid());
-        resize_window(_id, width, height);
-    }
-
-    u32 window::width() const 
-    {
-        math::u32v4 s{ size() };
-        return s.z - s.x;
-    }
-
-    u32 window::height() const 
-    {
-        math::u32v4 s{ size() };
-        return s.w - s.y;
-    }
-
-    bool window::is_closed() const 
-    {
-        assert(is_valid());
-        return is_window_closed(_id);
-    }
 }
+
+#include "IncludeWindowCpp.h"
+
+#endif // _WIN64

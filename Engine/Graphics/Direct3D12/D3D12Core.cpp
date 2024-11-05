@@ -4,8 +4,8 @@
 #include "D3D12Core.h"
 #include "D3D12Resources.h"
 #include "D3D12Surface.h"
-#include "D3D12Shaders.h"
 #include "D3D12Helpers.h"
+#include "D3D12Shaders.h"
 
 using namespace Microsoft::WRL;
 
