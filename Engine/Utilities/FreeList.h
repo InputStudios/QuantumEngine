@@ -5,8 +5,8 @@
 #include "CommonHeaders.h"
 
 namespace Quantum::util {
-
-#if USE_STL_VERTOR
+     
+#if USE_STL_VECTOR
 #pragma message("WARNING: using util::free_list with std::vector result in duplicate calls to class constructor!")
 #endif
 
@@ -40,7 +40,7 @@ namespace Quantum::util {
             }
             else
             {
-                id + _next_free_index;
+                id = _next_free_index;
                 assert(id < _array.size() && !already_removed(id));
                 _next_free_index = *(const u32 *const)std::addressof(_array[id]);
                 new (std::addressof(_array[id])) T(std::forward<params>(p)...);
@@ -55,7 +55,7 @@ namespace Quantum::util {
             T& item{ _array[id] };
             item.~T();
             DEBUG_OP(memset(std::addressof(_array[id]), 0xcc, sizeof(T)));
-            * (u32* const)std::addressof(_array[id]) = _next_free_index;
+            *(u32 *const)std::addressof(_array[id]) = _next_free_index;
             _next_free_index = id;
             --_size;
         }
@@ -94,7 +94,7 @@ namespace Quantum::util {
             if constexpr (sizeof(T) > sizeof(u32))
             {
                 u32 i{ sizeof(u32) }; // skip the first 4 bytes.
-                const u8* const p{ (const u8* const)std::addressof(_array[id]) };
+                const u8 *const p{ (const u8 *const)std::addressof(_array[id]) };
                 while ((p[i] == 0xcc) && (i < sizeof(T))) ++i;
                 return i == sizeof(T);
             }

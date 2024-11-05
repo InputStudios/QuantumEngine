@@ -5,9 +5,11 @@
     <ClInclude Include="TestWindow.h" />
     <ClInclude Include="TestEntityComponent.h" />
     <ClInclude Include="TestRenderer.h" />
+    <ClInclude Include="ShaderCompilation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="TestRenderer.cpp" />
+    <ClCompile Include="ShaderCompilation.cpp" />
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
 #include "..\Platform\Platform.h"
 #include "..\Graphics\Renderer.h"
 #include "TestRenderer.h"
+#include "ShaderCompilation.h"
 #if TEST_RENDERER
 
 using namespace Quantum;
@@ -74,15 +75,21 @@ void destroy_render_surface(graphics::render_surface& surface)
 
 bool engine_test::initialize()
 {
-    bool result{ graphics::initialize(graphics::graphics_platform::direct3d12) };
-    if (!result) return result;
+    while (!compile_shaders())
+    {
+        // Pop up a message box allowing the user to retry compilation.
+        if (MessageBox(nullptr, L"Failed to compile engine shaders.", L"Shader Compilation Error", MB_RETRYCANCEL) != IDRETRY)
+            return false;
+    }
+
+    if (!graphics::initialize(graphics::graphics_platform::direct3d12)) return false;
 
     platform::window_init_info info[]
     {
-            {&win_proc, nullptr, L"Render window 1", 100 - 2000, 100 - 700, 400, 800},
-            {&win_proc, nullptr, L"Render window 2", 150 - 2000, 150 - 700, 800, 400},
-            {&win_proc, nullptr, L"Render window 3", 200 - 2000, 200 - 700, 400, 400},
-            {&win_proc, nullptr, L"Render window 4", 250 - 2000, 250 - 700, 800, 600},
+        {&win_proc, nullptr, L"Render window 1", 100 - 2000, 100 - 700, 400, 800},
+        {&win_proc, nullptr, L"Render window 2", 150 - 2000, 150 - 700, 800, 400},
+        {&win_proc, nullptr, L"Render window 3", 200 - 2000, 200 - 700, 400, 400},
+        {&win_proc, nullptr, L"Render window 4", 250 - 2000, 250 - 700, 800, 600},
     };
     static_assert(_countof(info) == _countof(_surfaces));
 

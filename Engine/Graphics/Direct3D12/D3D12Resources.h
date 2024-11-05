@@ -97,7 +97,6 @@ namespace Quantum::graphics::d3d12 {
         ~d3d12_texture() { release(); }
 
         void release();
-
         constexpr ID3D12Resource* const resource() const { return _resource; }
         constexpr descriptor_handle srv() const { return _srv; }
 
@@ -132,7 +131,7 @@ namespace Quantum::graphics::d3d12 {
             o.reset();
         }
 
-        constexpr d3d12_render_texture& operator - (d3d12_render_texture&& o)
+        constexpr d3d12_render_texture& operator = (d3d12_render_texture&& o)
         {
             assert(this != &o);
             if (this != &o)

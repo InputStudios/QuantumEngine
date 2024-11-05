@@ -19,6 +19,7 @@ namespace Quantum::graphics::d3d12::d3dx {
         ComPtr<ID3DBlob> signature_blob{ nullptr };
         ComPtr<ID3DBlob> error_blob{ nullptr };
         HRESULT hr{ S_OK };
+
         if (FAILED(hr = D3D12SerializeVersionedRootSignature(&versioned_desc, &signature_blob, &error_blob)))
         {
             DEBUG_OP(const char* error_msg{ error_blob ? (const char*)error_blob->GetBufferPointer() : "" });
@@ -27,8 +28,8 @@ namespace Quantum::graphics::d3d12::d3dx {
         }
 
         ID3D12RootSignature* signature{ nullptr };
-        DXCall(hr = core::device()->CreateRootSignature(0, signature_blob->GetBufferPointer(), 
-                                                        signature_blob->GetBufferSize(), IID_PPV_ARGS(&signature)));
+        DXCall(hr = core::device()->CreateRootSignature(0, signature_blob->GetBufferPointer(), signature_blob->GetBufferSize(), IID_PPV_ARGS(&signature)));
+
         if (FAILED(hr))
         {
             core::release(signature);

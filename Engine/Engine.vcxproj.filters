@@ -27,6 +27,7 @@
     <ClInclude Include="Utilities\FreeList.h" />
     <ClInclude Include="Utilities\Vector.h" />
     <ClInclude Include="Graphics\Direct3D12\D3D12Helpers.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12Shaders.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\Entity.cpp" />
@@ -36,13 +37,14 @@
     <ClCompile Include="Core\Main.cpp" />
     <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Content\ContentLoader.cpp" />
-    <ClCompile Include="Platform\Platform.cpp" />
+    <ClCompile Include="Platform\PlatformWin32.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Interface.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Core.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Resources.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Surface.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Helpers.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Shaders.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Content">

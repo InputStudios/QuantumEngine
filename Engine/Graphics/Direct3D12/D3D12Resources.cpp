@@ -11,8 +11,8 @@ namespace Quantum::graphics::d3d12 {
     {
         std::lock_guard lock{ _mutex };
         assert(capacity && capacity < D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2);
-        assert(!(_type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER &&
-            capacity > D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE));
+        assert(!(_type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER && capacity > D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE));
+
         if (_type == D3D12_DESCRIPTOR_HEAP_TYPE_DSV ||
             _type == D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
         {
@@ -21,7 +21,7 @@ namespace Quantum::graphics::d3d12 {
 
         release();
 
-        ID3D12Device* const device{ core::device() };
+        auto *const device{ core::device() };
         assert(device);
 
         D3D12_DESCRIPTOR_HEAP_DESC desc{};
@@ -123,12 +123,13 @@ namespace Quantum::graphics::d3d12 {
         {
             (info.desc &&
             (info.desc->Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET ||
-                info.desc->Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL))
-                ? &info.clear_value : nullptr
+             info.desc->Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL))
+             ? &info.clear_value : nullptr
         };
 
         if (info.resource)
         {
+            assert(!info.heap);
             _resource = info.resource;
         }
         else if (info.heap && info.desc)
@@ -142,8 +143,8 @@ namespace Quantum::graphics::d3d12 {
         {
             assert(!info.heap && !info.resource);
             DXCall(device->CreateCommittedResource(
-                &d3dx::heap_properties.default_heap, D3D12_HEAP_FLAG_NONE, info.desc,
-                info.initial_state, clear_value, IID_PPV_ARGS(&_resource)));
+                   &d3dx::heap_properties.default_heap, D3D12_HEAP_FLAG_NONE, info.desc,
+                   info.initial_state, clear_value, IID_PPV_ARGS(&_resource)));
         }
 
         assert(_resource);
@@ -170,7 +171,7 @@ namespace Quantum::graphics::d3d12 {
         desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
         desc.Texture2D.MipSlice = 0;
 
-        auto* const device{ core::device() };
+        auto *const device{ core::device() };
         assert(device);
 
         for (u32 i{ 0 }; i < _mip_count; ++i)

@@ -9,13 +9,13 @@ namespace Quantum::platform {
 #ifdef _WIN64
     namespace {
         struct window_info {
-            HWND   hwnd{ nullptr };
-            RECT   client_area{ 0, 0, 1920, 1080 };
-            RECT   fullscreen_area{};
-            POINT  top_left{ 0, 0 };
-            DWORD  style{ WS_VISIBLE };
-            bool   is_fullscreen{ false };
-            bool   is_closed{ false };
+            HWND      hwnd{ nullptr };
+            RECT      client_area{ 0, 0, 1920, 1080 };
+            RECT      fullscreen_area{};
+            POINT     top_left{ 0, 0 };
+            DWORD     style{ WS_VISIBLE };
+            bool      is_fullscreen{ false };
+            bool      is_closed{ false };
         };
 
         util::free_list<window_info> windows;

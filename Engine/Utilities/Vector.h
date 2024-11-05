@@ -17,18 +17,15 @@ namespace Quantum::util {
          vector() = default;
 
          // Constructor resizes the vector and initializes 'count' items.
+         constexpr explicit vector(u64 count)
+         {
+             resize(count);
+         }
+
+         // Constructor resizes the vector and initializes 'count' items using 'value'.
          constexpr explicit vector(u64 count, const T& value)
          {
              resize(count, value);
-         }
-
-         template<typename it, typename = std::enable_if<std::_Is_iterator_v<it>>>
-         constexpr explicit vector(it first, it last)
-         {
-             for (; first != last; ++first)
-             {
-                 emplace_back(*first);
-             }
          }
 
          // Copy-constructor. Constructs by copying another vector. The items
@@ -40,7 +37,7 @@ namespace Quantum::util {
 
          // Move-constructor. Constructs by moving another vector.
          // The original vector will be empty after move.
-         constexpr vector(const vector&& o)
+         constexpr vector(vector&& o)
              : _capacity{ o._capacity }, _size{ o._size }, _data{ o._data }
          {
              o.reset();
@@ -102,7 +99,7 @@ namespace Quantum::util {
              {
                  reserve(((_capacity + 1) * 3) >> 1); // reserve 50% more
              }
-             assert(_size < +_capacity);
+             assert(_size < _capacity);
 
              T* const item{ new (std::addressof(_data[_size])) T(std::forward<params>(p)...) };
              ++_size;
@@ -112,8 +109,8 @@ namespace Quantum::util {
          // Resizes the vector and initializes new items with their default value.
          constexpr void resize(u64 new_size)
          {
-             static_assert(std::is_default_constructible_v<T>,
-                           "Type must be default-constructible.");
+             static_assert(std::is_default_constructible<T>::value, "Type must be default-constructible.");
+
              if (new_size > _size)
              {
                  reserve(new_size);
@@ -128,17 +125,19 @@ namespace Quantum::util {
                  {
                      destruct_range(new_size, _size);
                  }
+
+                 _size = new_size;
              }
 
-             // Do nothing if new_size == _size
+             // Do nothing if new_size == _size.
              assert(new_size == _size);
          }
 
          // Resizes the vector and initializes new items by copying 'value'.
          constexpr void resize(u64 new_size, const T& value)
          {
-             static_assert(std::is_copy_constructible_v<T>,
-                 "Type must be copy-constructible.");
+             static_assert(std::is_copy_constructible<T>::value, "Type must be copy-constructible.");
+
              if (new_size > _size)
              {
                  reserve(new_size);
@@ -166,7 +165,7 @@ namespace Quantum::util {
          {
              if (new_capacity > _capacity)
              {
-                 // NOTE: reloc() will automatically copy the data in the buffer
+                 // NOTE: realoc() will automatically copy the data in the buffer
                  //       if a new region of memory is allocated.
                  void* new_buffer{ realloc(_data, new_capacity * sizeof(T)) };
                  assert(new_buffer);
@@ -378,7 +377,7 @@ namespace Quantum::util {
 
         constexpr void destroy()
         {
-            assert([&] { return _capacity ? _data != nullptr : _data == nullptr;  }());
+            assert([&] { return _capacity ? _data != nullptr : _data == nullptr; }());
             clear();
             _capacity = 0;
             if (_data) free(_data);
