@@ -2,12 +2,12 @@
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
 #include "ContentLoader.h"
-#include "..\Components\Entity.h"
-#include "..\Components\Transform.h"
-#include "..\Components\Script.h"
-#include "Graphics\Renderer.h"
+#include "Components/Entity.h"
+#include "Components/Transform.h"
+#include "Components/Script.h"
+#include "Graphics/Renderer.h"
 
-#if !defined(SHIPPING)
+#if !defined(SHIPPING) && defined(_WIN64)
 
 #include <fstream>
 #include <filesystem>
@@ -108,7 +108,9 @@ namespace Quantum::content {
         for (u32 entity_index{ 0 }; entity_index < num_entities; ++entity_index)
         {
             game_entity::entity_info info{};
-            const u32 entity_type{ *at }; at += su32;
+            // const u32 entity_type{ *at };
+            // skip over entity type (for now):
+            at += su32;
             const u32 num_components{ *at }; at += su32;
             if (!num_components) return false;
 

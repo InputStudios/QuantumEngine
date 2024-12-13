@@ -1,12 +1,12 @@
 // Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
-#if !defined(SHIPPING)
-#include "..\Content\ContentLoader.h"
-#include "..\Components\Script.h"
-#include "..\Platform\PlatformTypes.h"
-#include "..\Platform\Platform.h"
-#include "..\Graphics\Renderer.h"
+#if !defined(SHIPPING) && defined(_WIN64)
+#include "Content/ContentLoader.h"
+#include "Components/Script.h"
+#include "Platform/PlatformTypes.h"
+#include "Platform/Platform.h"
+#include "Graphics/Renderer.h"
 #include <thread>
 
 using namespace Quantum;
