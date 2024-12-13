@@ -4,9 +4,9 @@
 #include "Common.h"
 #include "CommonHeaders.h"
 #include "Id.h"
-#include "..\Engine\Components\Entity.h"
-#include "..\Engine\Components\Transform.h"
-#include "..\Engine\Components\Script.h"
+#include "Components/Entity.h"
+#include "Components/Transform.h"
+#include "Components/Script.h"
 
 using namespace Quantum;
 
@@ -52,7 +52,7 @@ namespace {
     {
         return game_entity::entity{ game_entity::entity_id{id} };
     }
-} // anosymous namespace
+} // anonymous namespace
 
 EDITOR_INTERFACE id::id_type CreateGameEntity(game_entity_descriptor* e) {
     assert(e);
