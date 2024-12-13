@@ -6,45 +6,141 @@
 
 namespace Quantum::tools {
 
-    namespace packed_vertex {
-        struct vertex_static
-        {
-            math::v3     position;
-            u8           reserved[3];
-            u8           t_sign; // bit 0; tangent handedness * (tangent.z sign, bit 1: normal.z sign (0 means -1, 1 means +1) };
-            u16          normal[2];
-            u16          tangent[2];
-            math::v2     uv;
-        };
-    } // namespace packed_vertex
-
     struct vertex
     {
-        math::v4 tangent{};
-        math::v3 position{};
-        math::v3 normal{};
-        math::v2 uv{};
+        math::v4        tangent{};
+        math::v4        joint_weights{};
+        math::u32v4     joint_indices{ u32_invalid_id, u32_invalid_id, u32_invalid_id, u32_invalid_id };
+        math::v3        position{};
+        math::v3        normal{};
+        math::v2        uv{};
+        u8              red{}, green{}, blue{};
+        u8              pad;
     };
+
+    namespace elements
+    {
+        struct elements_type {
+            enum type : u32 {
+                position_only = 0x00,
+                static_normal = 0x01,
+                static_normal_texture = 0x03,
+                static_color = 0x04,
+                skeletal = 0x08,
+                skeletal_color = skeletal | static_color,
+                skeletal_normal = skeletal | static_normal,
+                skeletal_normal_color = skeletal_normal | static_color,
+                skeletal_normal_texture = skeletal | static_normal_texture,
+                skeletal_normal_texture_color = skeletal_normal_texture | static_color,
+            };
+        };
+
+        struct static_color
+        {
+            u8          color[3];
+            u8          pad;
+        };
+
+        struct static_normal
+        {
+            u8          color[3];
+            u8          t_sign;       // bit 0: tangent handness * (tangent.z sign), bit 1: normal.z sing (0 means -1, 1 means +1).
+            u16         normal[2];
+        };
+
+        struct static_normal_texture
+        {
+            u8          color[3];
+            u8          t_sign;             // bit 0: tangent handness * (tangent.z sign), bit 1: normal.z sing (0 means -1, 1 means +1).
+            u16         normal[2];
+            u16         tangent[2];
+            math::v2    uv;
+        };
+
+        struct skeletal
+        {
+            u8          joint_weights[3];   // normalized joint weights for up to 4 joints.
+            u8          pad;     
+            u16         joint_indices[4];
+        };
+
+        struct skeletal_color
+        {
+            u8          joint_weights[3];   // normalized joint weights for up to 4 joints.
+            u8          pad;
+            u16         joint_indices[4];
+            u8          color[3];
+            u8          pad2;
+
+        };
+
+        struct skeletal_normal
+        {
+            u8          joint_weights[3];   // normalize joint weights for up to 4 joints.
+            u8          t_sign;             // bit 0: tangent handness * (tangent.z sign), bit 1: normal.z sing (0 means -1, 1 means +1).
+            u16         joint_indices[4];
+            u16         normal[2];
+        };
+
+        struct skeletal_normal_color
+        {
+            u8          joint_weights[3];   // normalize joint weights for up to 4 joints.
+            u8          t_sign;             // bit 0: tangent handness * (tangent.z sign), bit 1: normal.z sing (0 means -1, 1 means +1).
+            u16         joint_indices[4];
+            u16         normal[2];
+            u8          color[3];
+            u8          pad;
+        };
+
+        struct skeletal_normal_texture
+        {
+            u8          joint_weights[3];   // normalize joint weights for up to 4 joints.
+            u8          t_sign;             // bit 0: tangent handness * (tangent.z sign), bit 1: normal.z sing (0 means -1, 1 means +1).
+            u16         joint_indices[4];
+            u16         normal[2];
+            u16         tangent[2];
+            math::v2    uv;
+        };
+
+        struct skeletal_normal_texture_color
+        {
+            u8          joint_weights[3];   // normalize joint weights for up to 4 joints.
+            u8          t_sign;             // bit 0: tangent handness * (tangent.z sign), bit 1: normal.z sing (0 means -1, 1 means +1).
+            u16         joint_indices[4];
+            u16         normal[2];
+            u16         tangent[2];
+            math::v2    uv;
+            u8          color[3];
+            u8          pad;
+        };
+
+    } // namespace elements
 
     struct mesh
     {
-        // initial data
-        util::vector<math::v3>                        positions;
-        util::vector<math::v3>                        normals;
-        util::vector<math::v3>                        tangents;
-        util::vector<util::vector<math::v2>>          uv_sets;
+        // Initial data
+        util::vector<math::v3>                              positions;
+        util::vector<math::v3>                              normals;
+        util::vector<math::v4>                              tangents;
+        util::vector<math::v3>                              colors;
+        util::vector<util::vector<math::v2>>                uv_sets;
+        util::vector<u32>                                   material_indices;
+        util::vector<u32>                                   material_used;
 
-        util::vector<u32>                             raw_indices;
+        util::vector<u32>                                   raw_indices;
 
         // Intermediate data
-        util::vector<vertex>                          vertices;
-        util::vector<u32>                             indices;
+        util::vector<vertex>                                vertices;
+        util::vector<u32>                                   indices;
 
         // Output data
-        std::string                                   name;
-        util::vector<packed_vertex::vertex_static>    packed_vertices_static;
-        f32                                           lod_threshold{ -1.f };
-        u32                                           lod_id{ u32_invalid_id };
+        std::string                                         name;
+        elements::elements_type::type                       elements_type;
+        util::vector<u8>                                    position_buffer;
+        util::vector<u8>                                    element_buffer;
+
+        f32                                                 lod_threshold{ -1.f };
+        u32                                                 lod_id{ u32_invalid_id };
     };
 
     struct lod_group

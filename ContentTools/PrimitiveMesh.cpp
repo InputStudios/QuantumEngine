@@ -75,8 +75,7 @@ namespace Quantum::tools {
             const u32 row_length{ horizontal_count + 1 }; // number of vertices in a row
             for (u32 j{ 0 }; j < vertical_count; ++j)
             {
-                u32 k{ 0 };
-                for (u32 i{ k }; i < horizontal_count; ++i)
+                for (u32 i{ 0 }; i < horizontal_count; ++i)
                 {
                     const u32 index[4]
                     {
@@ -93,8 +92,7 @@ namespace Quantum::tools {
                     m.raw_indices.emplace_back(index[2]);
                     m.raw_indices.emplace_back(index[flip_winding ? 3 : 1]);
                     m.raw_indices.emplace_back(index[flip_winding ? 1 : 3]);
-                }
-                ++k;
+                };
             }
 
             const u32 num_indices{ 3 * 2 * horizontal_count * vertical_count };
@@ -251,7 +249,7 @@ namespace Quantum::tools {
             lod.meshes.emplace_back(create_plane(info));
             scene.lod_groups.emplace_back(lod);
         }
-        void create_cube(scene&, const primitive_init_info& info)
+        void create_cube(scene&, const primitive_init_info&)
         {
 
         }
@@ -262,15 +260,15 @@ namespace Quantum::tools {
             lod.meshes.emplace_back(create_uv_sphere(info));
             scene.lod_groups.emplace_back(lod);
         }
-        void create_ico_sphere(scene&, const primitive_init_info& info)
+        void create_ico_sphere(scene&, const primitive_init_info&)
         {
 
         }
-        void create_cylinder(scene&, const primitive_init_info& info)
+        void create_cylinder(scene&, const primitive_init_info&)
         {
 
         }
-        void create_capsule(scene&, const primitive_init_info& info)
+        void create_capsule(scene&, const primitive_init_info&)
         {
 
         }
