@@ -1,4 +1,4 @@
-# Courtesy of Devanity (https://github.com/Devaniti/GetDXC)
+# Courtesy of Devaniti (https://github.com/Devaniti/GetDXC)
 # usage: powershell -ExecutionPolicy Bypass -File GetDXC.ps1 PathToFolder
 $SaveFolder = $args[0]
 if ($args.count -lt 1)
@@ -7,7 +7,7 @@ if ($args.count -lt 1)
 }
 
 if (Test-Path $SaveFolder\*) {
-    Write-Host "Target path is not empty. Delete it to redownload the latest DXC."
+    Write-Host "Target path is not empty. Delete it to reboot the latest DXC."
     exit 0
 }
 
@@ -26,7 +26,7 @@ Foreach ($Asset IN $Assets)
 		Invoke-WebRequest -UseBasicParsing -Uri $DownloadURL -OutFile $ZIPPath
 		Expand-Archive -Path $ZIPPath -DestinationPath $SaveFolder -Force
 		Remove-Item -Path $ZIPPath
-		Write-Host "Sucessfully downloaded DXC $($Asset.name)"
+		Write-Host "Successfully downloaded DXC $($Asset.name)"
 		exit 0
 	}
 }
