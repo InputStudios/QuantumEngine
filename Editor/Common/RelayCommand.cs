@@ -1,4 +1,4 @@
-﻿// Copyright (c) Andrey Trepalin. 
+﻿// Copyright (c) Andrey Trepalin.
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
 using System;
@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace Editor
 {
-    class RelayCommand<T> : ICommand
+    internal class RelayCommand<T> : ICommand
     {
         private readonly Action<T> _execute;
         private readonly Predicate<T> _canExecute;

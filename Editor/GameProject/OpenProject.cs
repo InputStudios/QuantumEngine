@@ -9,8 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Editor.GameProject
 {
@@ -22,7 +20,7 @@ namespace Editor.GameProject
         [DataMember]
         public string ProjectPath { get; set; }
         [DataMember]
-        public DateTime Date {  get; set; }
+        public DateTime Date { get; set; }
 
         public string FullPath { get => $"{ProjectPath}{ProjectName}{Project.Extension}"; }
         public byte[] Icon { get; set; }

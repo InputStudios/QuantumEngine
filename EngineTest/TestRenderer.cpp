@@ -79,6 +79,7 @@ void destroy_render_item();
 void get_render_items(id::id_type* items, u32 count);
 void generate_lights();
 void remove_lights();
+void test_lights(f32 dt);
 
 LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
@@ -130,7 +131,7 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
         }
     }
 
-    if ((resized && GetAsyncKeyState(VK_LBUTTON) >= 0) || toggle_fullscreen)
+    if ((resized && GetKeyState(VK_LBUTTON) >= 0) || toggle_fullscreen)
     {
         platform::window win{ platform::window_id{(id::id_type)GetWindowLongPtr(hwnd, GWLP_USERDATA)} };
         for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
@@ -173,7 +174,7 @@ game_entity::entity create_one_game_entity(math::v3 position, math::v3 rotation,
     script::init_info script_info{};
     if (script_name)
     {
-        script_info.script_creator = script::detail::get_script_creator(script::detail::string_hash()(script_name));
+        script_info.script_creator = script::detail::get_script_creator_internal(script::detail::string_hash()(script_name));
         assert(script_info.script_creator);
     }
 
@@ -248,8 +249,7 @@ bool test_initialize()
     };
     static_assert(_countof(info) == _countof(_surfaces));
 
-    for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
-        create_camera_surface(_surfaces[i], info[i]);
+    for (u32 i{ 0 }; i < _countof(_surfaces); ++i) create_camera_surface(_surfaces[i], info[i]);
 
     // load test model
     std::unique_ptr<u8[]> model;
@@ -324,14 +324,21 @@ bool engine_test::initialize()
 
 void engine_test::run()
 {
+    static u32 counter{ 0 };
+    static u32 light_set_key{ 0 };
+    ++counter;
+    if ((counter % 90) == 0) light_set_key = (light_set_key + 1) % 2;
+
     timer.begin();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    script::update(timer.dt_avg());
+    const f32 dt{ timer.dt_avg() };
+    script::update(dt);
+    // test_lights(dt);
     for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
     {
         if (_surfaces[i].surface.surface.is_valid())
         {
-            f32 thresholds[3]{ 10 };
+            f32 thresholds[3]{};
 
             id::id_type render_items[3]{};
             get_render_items(&render_items[0], 3);
@@ -340,11 +347,11 @@ void engine_test::run()
             info.render_item_ids = &render_items[0];
             info.render_item_count = 3;
             info.thresholds = &thresholds[0];
-            info.light_set_key = 0;
-            info.average_frame_time = timer.dt_avg();
+            info.light_set_key = light_set_key;
+            info.average_frame_time = dt;
             info.camera_id = _surfaces[i].camera.get_id();
 
-            assert(_countof(threshold) >= info.render_item_count);
+            assert(_countof(thresholds) >= info.render_item_count);
             _surfaces[i].surface.surface.render(info);
         }
     }

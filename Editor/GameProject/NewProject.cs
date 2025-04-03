@@ -95,7 +95,7 @@ namespace Editor.GameProject
             }
         }
 
-        private ObservableCollection<ProjectTemplate> _projectTemplates = new ObservableCollection<ProjectTemplate>();
+        private readonly ObservableCollection<ProjectTemplate> _projectTemplates = new();
         public ReadOnlyObservableCollection<ProjectTemplate> ProjectTemplates { get; }
 
         private bool ValidateProjectPath()
@@ -103,13 +103,14 @@ namespace Editor.GameProject
             var path = ProjectPath;
             if (!Path.EndsInDirectorySeparator(path)) path += @"\";
             path += $@"{ProjectName}\";
+            var nameRegex = new Regex(@"^[A-Za-z_][A-Za-z0-9_]*$");
 
             IsValid = false;
             if (string.IsNullOrWhiteSpace(ProjectName.Trim()))
             {
                 ErrorMsg = "Type in a project name.";
             }
-            else if (ProjectName.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+            else if (!nameRegex.IsMatch(ProjectName))
             {
                 ErrorMsg = "Invalid character(s) used in project name.";
             }
@@ -119,6 +120,7 @@ namespace Editor.GameProject
             }
             else if (ProjectPath.IndexOfAny(Path.GetInvalidPathChars()) != -1)
             {
+                char invalid_char = path[ProjectPath.IndexOfAny(Path.GetInvalidPathChars())];
                 ErrorMsg = "Invalid character(s) used in project path.";
             }
             else if (Directory.Exists(path) && Directory.EnumerateFileSystemEntries(path).Any())
@@ -176,13 +178,13 @@ namespace Editor.GameProject
             Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCSolution")));
             Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCProject")));
 
-            var engineAPIPath = Path.Combine(MainWindow.QuantumPath, @"Engine\EngineAPI\");
+            var engineAPIPath = @"$(QUANTUM_ENGINE)Engine\EngineAPI\";
             Debug.Assert(Directory.Exists(engineAPIPath));
 
             var _0 = ProjectName;
             var _1 = "{" + Guid.NewGuid().ToString().ToUpper() + "}";
             var _2 = engineAPIPath;
-            var _3 = MainWindow.QuantumPath;
+            var _3 = "$(QUANTUM_ENGINE)";
 
             var solution = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCSolution"));
             solution = string.Format(solution, _0, _1, "{" + Guid.NewGuid().ToString().ToUpper() + "}");

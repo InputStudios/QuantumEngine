@@ -79,13 +79,13 @@ namespace Quantum::util {
          // Destructs the vector and its items as specified in template argument
          ~vector() { destroy(); }
 
-         // Inserts an item at the end iof the vector by copying 'value'. 
+         // Inserts an item at the end if the vector by copying 'value'. 
          constexpr void push_back(const T& value)
          {
              emplace_back(value);
          }
 
-         // Inserts an item at the end iof the vector by moving 'value'. 
+         // Inserts an item at the end if the vector by moving 'value'. 
          constexpr void push_back(T&& value)
          {
              emplace_back(std::move(value));
@@ -237,7 +237,7 @@ namespace Quantum::util {
              if (this != std::addressof(o))
              {
                  auto temp(std::move(o));
-                 omove(*this);
+                 o.move(*this);
                  move(temp);
              }
          }
@@ -310,7 +310,7 @@ namespace Quantum::util {
              return _data[_size - 1];
          }
 
-         // Returns a reference to teh last item. Will fault the application if called
+         // Returns a reference to the last item. Will fault the application if called
          // if called when the vector is empty
          [[nodiscard]] constexpr const T& back() const
          {
@@ -321,28 +321,26 @@ namespace Quantum::util {
          // Returns a pointer to the first item. Returns null when vector is empty.
          [[nodiscard]] constexpr T* begin()
          {
-             assert(_data);
              return std::addressof(_data[0]);
          }
 
          // Returns a pointer to the first item. Returns null when vector is empty.
          [[nodiscard]] constexpr const T* begin() const
          {
-             assert(_data);
              return std::addressof(_data[0]);
          }
 
          // Returns a pointer to the last item. Returns null when vector is empty.
          [[nodiscard]] constexpr T* end()
          {
-             assert(_data);
+             assert(!(_data == nullptr && _size > 0));
              return std::addressof(_data[_size]);
          }
 
-         // Returns a pointer to teh last item. Returns null when vector is empty.
+         // Returns a pointer to the last item. Returns null when vector is empty.
          [[nodiscard]] constexpr const T* end() const
          {
-             assert(_data);
+             assert(!(_data == nullptr && _size > 0));
              return std::addressof(_data[_size]);
          }
 

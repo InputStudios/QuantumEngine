@@ -29,15 +29,31 @@
     <ClInclude Include="Graphics\Direct3D12\D3D12Helpers.h" />
     <ClInclude Include="Graphics\Direct3D12\D3D12Shaders.h" />
     <ClInclude Include="Platform\IncludeWindowCpp.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12GPass.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12PostProcess.h" />
+    <ClInclude Include="Utilities\IOStream.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12Upload.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12Content.h" />
+    <ClInclude Include="Content\ContentToEngine.h" />
+    <ClInclude Include="EngineAPI\Camera.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12Camera.h" />
+    <ClInclude Include="Graphics\Direct3D12\Shaders\ShaderTypes.h" />
+    <ClInclude Include="EngineAPI\Light.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12Light.h" />
+    <ClInclude Include="EngineAPI\Input.h" />
+    <ClInclude Include="Input\Input.h" />
+    <ClInclude Include="Input\InputWin32.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12LightCulling.h" />
+    <ClInclude Include="Graphics\Vulkan\VulkanValdiation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\Entity.cpp" />
     <ClCompile Include="Components\Transform.cpp" />
     <ClCompile Include="Components\Script.h" />
     <ClCompile Include="Components\Script.cpp" />
-    <ClCompile Include="Core\Main.cpp" />
-    <ClCompile Include="Core\Engine.cpp" />
-    <ClCompile Include="Content\ContentLoader.cpp" />
+    <ClCompile Include="Core\MainWin32.cpp" />
+    <ClCompile Include="Core\EngineWin32.cpp" />
+    <ClCompile Include="Content\ContentLoaderWin32.cpp" />
     <ClCompile Include="Platform\PlatformWin32.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Interface.cpp" />
@@ -47,10 +63,23 @@
     <ClCompile Include="Graphics\Direct3D12\D3D12Helpers.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Shaders.cpp" />
     <ClCompile Include="Platform\Window.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12GPass.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12PostProcess.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Upload.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Content.cpp" />
+    <ClCompile Include="Content\ContentToEngine.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Camera.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Light.cpp" />
+    <ClCompile Include="Input\Input.cpp" />
+    <ClCompile Include="Input\InputWin32.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12LightCulling.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Content">
       <UniqueIdentifier>{f1d47d93-7802-473b-939d-13e8bdd26338}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

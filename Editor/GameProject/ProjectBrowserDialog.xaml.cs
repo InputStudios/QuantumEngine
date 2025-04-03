@@ -15,6 +15,9 @@ namespace Editor.GameProject
     public partial class ProjectBrowserDialog : Window
     {
         private readonly CubicEase _easing = new CubicEase() { EasingMode = EasingMode.EaseInOut };
+
+        public static bool GoToNewProjectTab { get; set; }
+
         public ProjectBrowserDialog()
         {
             InitializeComponent();
@@ -24,17 +27,23 @@ namespace Editor.GameProject
         private void OnProjectBrowserDialogLoaded(object sender, RoutedEventArgs e)
         {
             Loaded -= OnProjectBrowserDialogLoaded;
-            if (!OpenProject.Projects.Any())
+            if (!OpenProject.Projects.Any() || GoToNewProjectTab)
             {
-                openProjectButton.IsEnabled = false;
-                openProjectView.Visibility = Visibility.Hidden;
+                if (!GoToNewProjectTab)
+                {
+                    openProjectButton.IsEnabled = false;
+                    openProjectView.Visibility = Visibility.Hidden;
+                }
+
                 OnToggleButton_Click(newProjectButton, new RoutedEventArgs());
             }
+
+            GoToNewProjectTab = false;
         }
 
         private void AnimateToCreateProject()
         {
-            var hightlightAnimation = new DoubleAnimation(200, 400, new Duration(TimeSpan.FromSeconds(0.2)));
+            var hightlightAnimation = new DoubleAnimation(240, 420, new Duration(TimeSpan.FromSeconds(0.2)));
             hightlightAnimation.EasingFunction = _easing;
             hightlightAnimation.Completed += (s, e) =>
             {
@@ -47,12 +56,12 @@ namespace Editor.GameProject
 
         private void AnimateToOpenProject()
         {
-            var hightlightAnimation = new DoubleAnimation(400, 200, new Duration(TimeSpan.FromSeconds(0.2)));
-            hightlightAnimation.EasingFunction= _easing;
+            var hightlightAnimation = new DoubleAnimation(420, 240, new Duration(TimeSpan.FromSeconds(0.2)));
+            hightlightAnimation.EasingFunction = _easing;
             hightlightAnimation.Completed += (s, e) =>
             {
                 var animation = new ThicknessAnimation(new Thickness(-1600, 0, 0, 0), new Thickness(0), new Duration(TimeSpan.FromSeconds(0.5)));
-                animation.EasingFunction= _easing;
+                animation.EasingFunction = _easing;
                 browserContent.BeginAnimation(MarginProperty, animation);
             };
             highlightRect.BeginAnimation(Canvas.LeftProperty, hightlightAnimation);

@@ -3,19 +3,20 @@
 
 #include "D3D12Surface.h"
 #include "D3D12Core.h"
+#include "D3D12LightCulling.h"
 
 namespace Quantum::graphics::d3d12 {
     namespace {
         constexpr DXGI_FORMAT to_non_srgb(DXGI_FORMAT format)
         {
-            if (format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) return DXGI_FORMAT_R8G8_UNORM;
+            if (format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) return DXGI_FORMAT_R8G8B8A8_UNORM;
 
             return format;
         }
 
     } // anonymous namespace
 
-    void d3d12_surface::create_swap_chain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue, DXGI_FORMAT format /* = default_back_buffer_format */)
+    void d3d12_surface::create_swap_chain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue)
     {
         assert(factory && cmd_queue);
         release();
@@ -25,14 +26,12 @@ namespace Quantum::graphics::d3d12 {
             _present_flags = DXGI_PRESENT_ALLOW_TEARING;
         }
 
-        _format = format;
-
         DXGI_SWAP_CHAIN_DESC1 desc{};
         desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
         desc.BufferCount = buffer_count;
         desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         desc.Flags = _allow_tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-        desc.Format = to_non_srgb(format);
+        desc.Format = to_non_srgb(default_back_buffer_format);
         desc.Height = _window.height();
         desc.Width = _window.width();
         desc.SampleDesc.Count = 1;
@@ -56,6 +55,9 @@ namespace Quantum::graphics::d3d12 {
         }
 
         finalize();
+
+        assert(!id::is_valid(_light_culling_id));
+        _light_culling_id = delight::add_culler();
     }
 
     void d3d12_surface::present() const
@@ -67,7 +69,19 @@ namespace Quantum::graphics::d3d12 {
 
     void d3d12_surface::resize()
     {
+        assert(_swap_chain);
+        for (u32 i{ 0 }; i < buffer_count; ++i)
+        {
+            core::release(_render_target_data[i].resource);
+        }
 
+        const u32 flags{ _allow_tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0ul };
+        DXCall(_swap_chain->ResizeBuffers(buffer_count, 0, 0, DXGI_FORMAT_UNKNOWN, flags));
+        _current_bb_index = _swap_chain->GetCurrentBackBufferIndex();
+
+        finalize();
+
+        DEBUG_OP(OutputDebugString(L"::D3D12 Surface Resized.\n"));
     }
 
     void d3d12_surface::finalize()
@@ -79,7 +93,7 @@ namespace Quantum::graphics::d3d12 {
             assert(!data.resource);
             DXCall(_swap_chain->GetBuffer(i, IID_PPV_ARGS(&data.resource)));
             D3D12_RENDER_TARGET_VIEW_DESC desc{};
-            desc.Format = _format;
+            desc.Format = default_back_buffer_format;
             desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
             core::device()->CreateRenderTargetView(data.resource, &desc, data.rtv.cpu);
         }
@@ -103,6 +117,11 @@ namespace Quantum::graphics::d3d12 {
 
     void d3d12_surface::release()
     {
+        if (id::is_valid(_light_culling_id))
+        {
+            delight::remove_culler(_light_culling_id);
+        }
+
         for (u32 i{ 0 }; i < buffer_count; ++i)
         {
             render_target_data& data{ _render_target_data[i] };

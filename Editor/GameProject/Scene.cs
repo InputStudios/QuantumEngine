@@ -3,14 +3,9 @@
 
 using Editor.Components;
 using Editor.Utilities;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Editor.GameProject
@@ -20,9 +15,9 @@ namespace Editor.GameProject
     {
         private string _name;
         [DataMember]
-        public string Name 
+        public string Name
         {
-            get => _name; 
+            get => _name;
             set
             {
                 if (_name != value)

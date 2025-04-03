@@ -1,10 +1,14 @@
 // Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
-
 #pragma once
 #include "CommonHeaders.h"
-#include "Graphics\Renderer.h"
-#include "Platform\Window.h"
+#include "Graphics/Renderer.h"
+#include "Platform/Window.h"
+
+// Skip definition of min/max macros in window.h
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // !NOMINMAX
 
 #include <dxgi1_6.h>
 #include <d3d12.h>
@@ -36,28 +40,31 @@ if (FAILED(x)) {                                    \
     __debugbreak();                                 \
 }
 #endif // !DXCall
-#else
-#ifdef  DXCall
-#define DXCall(x) x
-#endif //  !DXCall
-#endif // _DEBUG
-
-#ifdef _DEBUG
 // Sets the name of the COM object and outputs a debug string int Visual Studio's output panel.
 #define NAME_D3D12_OBJECT(obj, name) obj->SetName(name); OutputDebugString(L"::D3D12 Object Created: "); OutputDebugString(name); OutputDebugString(L"\n");
 // The indexed variant will include the index in the name of the object
-#define NAME_D3D12_OBJECT_INDEXED(obj, n, name)                 \
-{                                                               \
-    wchar_t full_name[128];                                     \
-    if (swprintf_s(full_name, L"%s[%u]", name, n) > 0) {        \
-        obj->SetName(full_name);                                \
-        OutputDebugString(L"::D3D12 Object Created: ");         \
-        OutputDebugString(full_name);                           \
-        OutputDebugString(L"\n");                               \
-}}
+#define NAME_D3D12_OBJECT_INDEXED(obj, idx, name)                       \
+{                                                                       \
+    wchar_t full_name[128];                                             \
+    if (swprintf_s(full_name, L"%s[%llu]", name, (u64)idx) > 0) {       \
+        obj->SetName(full_name);                                        \
+        OutputDebugString(L"::D3D12 Object Created: ");                 \
+        OutputDebugString(full_name);                                   \
+        OutputDebugString(L"\n");                                       \
+    }                                                                   \
+}
+#ifndef DEBUG_OP
+#define DEBUG_OP(x) x
+#endif
 #else
-#define NAME_D3D12_OBJECT(x, name)
-#define NAME_D3D12_OBJECT_INDEXED(x, n, name)
+#ifndef DXCall
+#define DXCall(x) x
+#endif
+#define NAME_D3D12_OBJECT(obj, name) ((void)0)
+#define NAME_D3D12_OBJECT_INDEXED(obj, idx, name) ((void)0)
+#ifndef  DEBUG_OP
+#define DEBUG_OP(x) ((void*)0)
+#endif // ! DEBUG_OP
 #endif // _DEBUG
 
 #include "D3D12Helpers.h"

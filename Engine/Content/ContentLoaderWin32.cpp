@@ -59,7 +59,7 @@ namespace Quantum::content {
             memcpy(&script_name[0], data, name_length); data += name_length;
             // make the name a zero-terminated c-string.
             script_name[name_length] = 0;
-            script_info.script_creator = script::detail::get_script_creator(script::detail::string_hash()(script_name));
+            script_info.script_creator = script::detail::get_script_creator_internal(script::detail::string_hash()(script_name));
             info.script = &script_info;
             return script_info.script_creator != nullptr;
         }

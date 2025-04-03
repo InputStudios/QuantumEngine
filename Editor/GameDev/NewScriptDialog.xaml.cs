@@ -6,12 +6,10 @@ using Editor.Utilities;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
@@ -50,19 +48,13 @@ namespace {1} {{
             }};
         }} // namespace {1}";
 
-        public NewScriptDialog()
-        {
-            InitializeComponent();
-            Owner = Application.Current.MainWindow;
-            scriptPath.Text = @"GameCode\";
-        }
-
         private static readonly string _namespace = GetNamespaceFromProjectName();
 
         private static string GetNamespaceFromProjectName()
         {
-            var projectName = Project.Current.Name;
-            projectName = projectName.Replace(' ', '_');
+            var projectName = Project.Current.Name.Trim();
+            if (string.IsNullOrEmpty(projectName)) return string.Empty;
+
             return projectName;
         }
 
@@ -72,11 +64,13 @@ namespace {1} {{
             var name = scriptName.Text.Trim();
             var path = scriptPath.Text.Trim();
             string errorMsg = string.Empty;
+            var nameRegex = new Regex(@"^[A-Za-z_][A-Za-z0-9_]*$");
+
             if (string.IsNullOrEmpty(name))
             {
                 errorMsg = "Type in a script name.";
             }
-            else if (name.IndexOfAny(Path.GetInvalidFileNameChars()) != -1 || name.Any(x => char.IsWhiteSpace(x)))
+            else if (!nameRegex.IsMatch(name))
             {
                 errorMsg = "invalid character(s) used in script name.";
             }
@@ -90,7 +84,7 @@ namespace {1} {{
             }
             else if (!Path.GetFullPath(Path.Combine(Project.Current.Path, path)).Contains(Path.Combine(Project.Current.Path, @"GameCode\")))
             {
-                errorMsg = "Script must be added to (a sub-folder of) GameCode."; 
+                errorMsg = "Script must be added to (a sub-folder of) GameCode.";
             }
             else if (File.Exists(Path.GetFullPath(Path.Combine(Path.Combine(Project.Current.Path, path), $"{name}.cpp"))) ||
                     File.Exists(Path.GetFullPath(Path.Combine(Path.Combine(Project.Current.Path, path), $"{name}.h"))))
@@ -105,7 +99,7 @@ namespace {1} {{
             {
                 messageTextBlock.Foreground = FindResource("Editor.RedBrush") as Brush;
             }
-            else 
+            else
             {
                 messageTextBlock.Foreground = FindResource("Editor.FontBrush") as Brush;
             }
@@ -140,9 +134,9 @@ namespace {1} {{
                 var path = Path.GetFullPath(Path.Combine(Project.Current.Path, scriptPath.Text.Trim()));
                 var solution = Project.Current.Solution;
                 var projectName = Project.Current.Name;
-                await Task.Run(() => CreateScript(name, path, solution, projectName)); 
+                await Task.Run(() => CreateScript(name, path, solution, projectName));
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 Logger.Log(MessageType.Error, $"Failed to create script {scriptName.Text}");
@@ -167,23 +161,27 @@ namespace {1} {{
             var cpp = Path.GetFullPath(Path.Combine(path, $"{name}.cpp"));
             var h = Path.GetFullPath(Path.Combine(path, $"{name}.h"));
 
-            using(var sw = File.CreateText(cpp))
+            using (var sw = File.CreateText(cpp))
             {
                 sw.Write(string.Format(_cppCode, name, _namespace));
             }
 
-            using(var sw = File.CreateText(h))
+            using (var sw = File.CreateText(h))
             {
                 sw.Write(string.Format(_hCode, name, _namespace));
             }
 
             string[] files = new string[] { cpp, h };
 
-            for (int i = 0; i < 3; i++)
-            {
-                if (!VisualStudio.AddFilesToSolution(solution, projectName, files)) System.Threading.Thread.Sleep(1000);
-                else break;
-            }
+
+            VisualStudio.AddFilesToSolution(solution, projectName, files);
+        }
+
+        public NewScriptDialog()
+        {
+            InitializeComponent();
+            Owner = Application.Current.MainWindow;
+            scriptPath.Text = @"GameCode\";
         }
     }
 }

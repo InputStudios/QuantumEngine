@@ -3,20 +3,15 @@
 
 using Editor.DLLWrappers;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace Editor.Utilities
 {
     class RenderSurfaceHost : HwndHost
     {
-        private readonly int VK_LBUTTON = 0x01; 
+        private readonly int VK_LBUTTON = 0x01;
         private readonly int _width = 800;
         private readonly int _height = 600;
         public int SurfaceId { get; private set; } = ID.INVALID_ID;
@@ -33,7 +28,7 @@ namespace Editor.Utilities
             if (!e.RepeatEvent)
             {
                 EngineAPI.ResizeRenderSurface(SurfaceId);
-            }    
+            }
         }
 
         public RenderSurfaceHost(double width, double height)

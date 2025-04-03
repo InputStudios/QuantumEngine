@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
+using Editor.Content;
 using Editor.GameProject;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
@@ -14,6 +16,8 @@ namespace Editor
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static string QuantumPath { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -21,20 +25,11 @@ namespace Editor
             Closing += OnMainWindowClosing;
         }
 
-        public static string QuantumPath { get; private set; }
-
         private void OnMainWindowLoaded(object sender, RoutedEventArgs e)
         {
             Loaded -= OnMainWindowLoaded;
             GetEnginePath();
             OpenProjectBrowserDialog();
-        }
-
-        private void OnMainWindowClosing(object? sender, CancelEventArgs e)
-        {
-            Closing -= OnMainWindowClosing;
-            GetEnginePath();
-            Project.Current?.Unload();
         }
 
         private void GetEnginePath()
@@ -50,7 +45,30 @@ namespace Editor
                 }
                 else Application.Current.Shutdown();
             }
-            else QuantumPath = enginePath;
+            else
+            {
+                QuantumPath = enginePath;
+            }
+        }
+
+        private void OnMainWindowClosing(object? sender, CancelEventArgs e)
+        {
+            if (DataContext == null)
+            {
+                e.Cancel = true;
+                Application.Current.MainWindow.Hide();
+                OpenProjectBrowserDialog();
+                if (DataContext != null)
+                {
+                    Application.Current.MainWindow.Show();
+                }
+            }
+            else
+            {
+                Closing -= OnMainWindowClosing;
+                Project.Current?.Unload();
+                DataContext = null;
+            }
         }
 
         private void OpenProjectBrowserDialog()
@@ -63,7 +81,10 @@ namespace Editor
             else
             {
                 Project.Current?.Unload();
-                DataContext = projectBrowser.DataContext;
+                var project = projectBrowser.DataContext as Project;
+                Debug.Assert(project != null);
+                ContentWatcher.Reset(project.ContentPath, project.Path);
+                DataContext = project;
             }
         }
     }

@@ -1,6 +1,6 @@
 // Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
-#include "Common.hlsli"
+#include "../Engine/Graphics/Direct3D12/Shaders/Common.hlsli"
 
 struct VertexOut
 {
@@ -48,12 +48,15 @@ struct VertexElement
 
 const static float InvIntervals = 2.f / ((1 << 16) - 1);
 
-ConstantBuffer<GlobalShaderData>    GlobalData                      : register(b0, space0);
-ConstantBuffer<PerObjectData>       PerObjectBuffer                 : register(b1, space0);
-ConstantBuffer<float3>              VertexPositions                 : register(t0, space0);
-ConstantBuffer<VertexElement>       Elements                        : register(t1, space0);
+ConstantBuffer<GlobalShaderData>                GlobalData                      : register(b0, space0);
+ConstantBuffer<PerObjectData>                   PerObjectBuffer                 : register(b1, space0);
+StructuredBuffer<float3>                        VertexPositions                 : register(t0, space0);
+ConstantBuffer<VertexElement>                   Elements                        : register(t1, space0);
 
-StructuredBuffer<DirectionalLightParameters> DirectionalLights      : register(t3, space0);
+StructuredBuffer<DirectionalLightParameters>    DirectionalLights               : register(t3, space0);
+StructuredBuffer<LightParameters>               CullableLights                  : register(t4, space0);
+StructuredBuffer<uint2>                         LightGrid                       : register(t5, space0);
+StructuredBuffer<uint>                          LightIndexList                  : register(t6, space0);
 
 VertexOut TestShaderVS(in uint VertexIdx: SV_VertexID)
 {
@@ -101,6 +104,83 @@ VertexOut TestShaderVS(in uint VertexIdx: SV_VertexID)
     return vsOut;
 }
 
+#define TILE_SIZE 32
+#define NO_LIGHT_ATTENUATION 0
+
+float3 CalculateLighting(float3 N, float3 L, float3 V, float3 lightColor)
+{
+    const float NoL = dot(N, L);
+    float specular = 0;
+    
+    if (NoL > 0.f)
+    {
+        const float3 R = reflect(-L, N);
+        const float VoR = max(dot(V, R), 0.f);
+        specular = saturate(NoL * pow(VoR, 4.f) * 0.5f);
+    }
+    
+    return (max(0.f, NoL) + specular) * lightColor;
+}
+
+float3 PointLight(float3 N, float3 worldPosition, float3 V, LightParameters light)
+{
+    float3 L = light.Position - worldPosition;
+    const float dSq = dot(L, L);
+    float3 color = 0.f;
+# if NO_LIGHT_ATTENUATION
+    if (dSq < light.Range * light.Range)
+    {
+        const float dRcp = rsqrt(dSq);
+        L *= dRcp;
+        color = saturate(dot( N, L)) * light.Color * light.Intensity * 0.2f;
+    }
+#else
+    if (dSq < light.Range * light.Range)
+    {
+        const float dRcp = rsqrt(dSq);
+        L *= dRcp;
+        const float attenuation = 1.f - smoothstep(-light.Range, light.Range, rcp(dRcp));
+        color = CalculateLighting(N, L, V, light.Color * light.Intensity * attenuation);
+    }
+#endif
+    return color;
+}
+
+float3 SpotLight(float3 N, float3 worldPosition, float V, LightParameters light)
+{
+    float3 L = light.Position - worldPosition;
+    const float dSq = dot(L, L);
+    float3 color = 0.f;
+#if NO_LIGHT_ATTENUATION
+    if (dSq < light.Range * light.Range)
+    {
+        const float dRcp = rsqrt(dSq);
+        L *= dRcp;
+        const float CosAngleToLight = saturate(dot(-L, light.Direction));
+        const float angularAttenuation = float(light.CosPenumbra < CosAngleToLight);
+        color = saturate(dot(N, L)) * light.Color * light.Intensity * angularAttenuation * 0.2f;
+    }
+#else
+    if (dSq < light.Range * light.Range)
+    {
+        const float dRcp = rsqrt(dSq);
+        L *= dRcp;
+        const float attenuation = 1.f - smoothstep(-light.Range, light.Range, rcp());
+        const float CosAngleToLight = saturate(dot(-L, light.Direction));
+        const float angularAttenuation = smoothstep(light.CosPenumbra, light.CosUmbra, CosAngleToLight);
+        color = CalculateLighting(N, L, V, light.Color * light.Intensity * attenuation * angularAttenuation);
+    }
+#endif
+    return color;
+}
+
+uint GridIndex(float2 posXY, float viewWidth)
+{
+    const uint2 pos = uint2(posXY);
+    const uint tileX = ceil(GlobalData.ViewWidth / TILE_SIZE);
+    return (pos.x / TILE_SIZE) + (tileX * (pos.y / TILE_SIZE));
+}
+
 [earlydepthstecil] 
 PixelOut TestShaderPS(in VertexOut psIn)
 {
@@ -111,7 +191,7 @@ PixelOut TestShaderPS(in VertexOut psIn)
     
     float3 color = 0;
     
-    for (uint i = 0; i < GlobalData.NumDirectionalLights; ++i)
+    for (uint i = 0; i < GlobalData.NumDirectionalLight; ++i)
     {
         DirectionalLightParameters light = DirectionalLights[i];
         
@@ -120,15 +200,49 @@ PixelOut TestShaderPS(in VertexOut psIn)
         {
             lightDirection = GlobalData.CameraDirection;
         }
-        float diffuse = max(dot(normal, -lightDirection));
-        float3 reflection = reflect(lightDirection, normal);
-        float specular = pow(max(dot(viewDir, reflection), 0.f), 16) * 0.5f;
         
-        float3 lightColor = light.Color * light.Intensity;
-        color += (diffuse + specular) * lightColor;
+        color += 0.02f * CalculateLighting(normal, -lightDirection, viewDir, light.Color * light.Intensity);
     }
     
-    float3 ambient = 10 / 255.f;
+    const uint gridIndex = GridIndex(psIn.HomogeneousPosition.xy, GlobalData.ViewWidth);
+    uint lightStartIndex = LightGrid[gridIndex].x;
+    const uint lightCount = LightGrid[gridIndex].y;
+
+#if USE_BOUNDING_SPHARES
+    const uint numPointLight = lightStartIndex + (lightCount >> 16);
+    const uint numSpotLights = numPointLights + (lightCount & 0xffff);
+
+    for (i = lightStartIndex; i < numPointLights; ++i)
+    {
+        const uint lightIndex = LightIndexList[i];
+        LightParamewters light = CullableLights[lightIndex];
+        color += PointLight(normal, psIn.WorldPosition, viewDir, light);
+    }
+
+    for (i = numPointLights; i < numSpotLights; ++i)
+    {
+        const uint lightIndex = LightIndexList[i];
+        LightParamewters light = CullableLights[lightIndex];
+        color += SpotLight(normal, psIn.WorldPosition, viewDir, light);
+    }
+#else 
+    for (i = 0; i < lightCount; ++i)
+    {
+        const uint lightIndex = LightIndexList[lightStartIndex + i];
+        LightParameters light = CullableLights[lightIndex];
+        
+        if (light.Type == LIGHT_TYPE_POINT_LIGHT)
+        {
+            color += PointLight(normal, psIn.WorldPosition, viewDir, light);
+        }
+        else if (light.Type == LIGHT_TYPE_SPOTLIGHT)
+        {
+            color += SpotLight(normal, psIn.WorldPosition, viewDir, light);
+        }
+    }
+#endif
+    
+    float3 ambient = 0 / 255.f;
     psOut.Color = saturate(float4(color + ambient, 1.f));
     
     return psOut;

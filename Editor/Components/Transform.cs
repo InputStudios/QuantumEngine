@@ -199,7 +199,7 @@ namespace Editor.Components
 
         protected override bool UpdateComponents(string propertyName)
         {
-            switch (propertyName) 
+            switch (propertyName)
             {
                 case nameof(PosX):
                 case nameof(PosY):

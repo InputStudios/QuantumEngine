@@ -2,7 +2,7 @@
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
 #pragma once
-#include "..\Components\ComponentsCommon.h"
+#include "Components/ComponentsCommon.h"
 
 namespace Quantum::transform {
 
@@ -17,6 +17,7 @@ namespace Quantum::transform {
 		constexpr bool is_valid() const { return id::is_valid(_id); }
 
 		math::v4 rotation() const;
+        math::v3 orientation() const;
 		math::v3 position() const;
 		math::v3 scale() const;
 	private:

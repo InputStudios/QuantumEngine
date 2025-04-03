@@ -1,9 +1,9 @@
 // Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
-
 #ifdef _WIN64
 #include "Platform.h"
 #include "PlatformTypes.h"
+#include "Input/InputWin32.h"
 
 namespace Quantum::platform {
 
@@ -22,7 +22,6 @@ namespace Quantum::platform {
         
         window_info& get_from_id(window_id id)
         {
-            assert(id < windows.size());
             assert(windows[id].hwnd);
             return windows[id];
         }
@@ -33,37 +32,44 @@ namespace Quantum::platform {
             return get_from_id(id);
         }
 
+        bool resized{ false };
+
         LRESULT CALLBACK internal_window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
         {
-            window_info* info{ nullptr };
             switch (msg)
             {
+            case WM_NCCREATE:
+            {
+                // Put the window id in the user data field of window's data buffer.
+                DEBUG_OP(SetLastError(0));
+                const window_id id{ windows.add() };
+                windows[id].hwnd = hwnd;
+                SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)id);
+                assert(GetLastError() == 0);
+            }
             case WM_DESTROY:
                 get_from_handle(hwnd).is_closed = true;
                 break;
-            case WM_EXITSIZEMOVE:
-                info = &get_from_handle(hwnd);
-                break;
             case WM_SIZE:
-                if (wparam == SIZE_MAXIMIZED)
-                {
-                    info = &get_from_handle(hwnd);
-                }
-                break;
-            case WM_SYSCOMMAND:
-                if (wparam == SC_RESTORE)
-                {
-                    info = &get_from_handle(hwnd);
-                }
+                resized = (wparam != SIZE_MINIMIZED);
                 break;
             default:
                 break;
             }
 
-            if (info)
+            input::process_input_message(hwnd, msg, wparam, lparam);
+
+            if (resized && GetAsyncKeyState(VK_LBUTTON) >= 0)
             {
-                assert(info->hwnd);
-                GetClientRect(info->hwnd, info->is_fullscreen ? &info->fullscreen_area : &info->client_area);
+                window_info& info{ get_from_handle(hwnd) };
+                assert(info.hwnd);
+                GetClientRect(info.hwnd, info.is_fullscreen ? &info.fullscreen_area : &info.client_area);
+                resized = false;
+;            }
+
+            if (msg == HCBT_SYSCOMMAND && wparam == SC_KEYMENU)
+            {
+                return 0;
             }
 
             LONG_PTR long_ptr{ GetWindowLongPtr(hwnd, 0) };

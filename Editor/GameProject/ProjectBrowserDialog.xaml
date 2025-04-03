@@ -9,7 +9,7 @@
         Style="{StaticResource QuantumDialogStyle}">
     <Window.Resources>
         <Style TargetType="{x:Type ToggleButton}">
-            <Setter Property="FontSize" Value="32" />
+            <Setter Property="FontSize" Value="32"/>
             <Setter Property="FontFamily" Value="Bahnschrift condensed"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -21,12 +21,12 @@
                     <ControlTemplate TargetType="{x:Type ToggleButton}">
                         <TextBlock Text="{TemplateBinding Button.Content}" Style="{x:Null}">
                             <TextBlock.Effect>
-                                <DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.6" />
+                                <DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.6"/>
                             </TextBlock.Effect>
                         </TextBlock>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush4}" />
+                                <Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush4}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter Property="Foreground" Value="White" />
@@ -36,7 +36,7 @@
                                     <Condition Property="IsMouseOver" Value="True" />
                                     <Condition Property="IsChecked" Value="False" />
                                 </MultiTrigger.Conditions>
-                                <Setter Property="Foreground" Value="{StaticResource Editor.FontBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource Editor.FontBrush}"/>
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -47,14 +47,14 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
-            <RowDefinition />
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <Canvas x:Name="canvas">
             <Rectangle Width="{Binding Path=ActualWidth, ElementName=newProjectButton}"
                        Height="{Binding Path=ActualHeight, ElementName=canvas}"
                        x:Name="highlightRect" Canvas.Left="240" Opacity="0.3">
                 <Rectangle.Effect>
-                    <BlurEffect Radius="10" KernelType="Gaussian" />
+                    <BlurEffect Radius="10" KernelType="Gaussian"/>
                 </Rectangle.Effect>
                 <Rectangle.Fill>
                     <RadialGradientBrush GradientOrigin="0.5,1" Center="0.5,1" RadiusY="2">
@@ -67,8 +67,8 @@
                 <Rectangle.OpacityMask>
                     <RadialGradientBrush GradientOrigin="0.5,1" Center="0.5,1" RadiusY="0.5">
                         <RadialGradientBrush.GradientStops>
-                            <GradientStop Color="White" Offset="0" />
-                            <GradientStop Color="Transparent" Offset="1" />
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
                         </RadialGradientBrush.GradientStops>
                     </RadialGradientBrush>
                 </Rectangle.OpacityMask>
@@ -81,7 +81,7 @@
                     <LinearGradientBrush.GradientStops>
                         <GradientStop Color="Transparent" Offset="0" />
                         <GradientStop Color="{StaticResource Editor.Disabled.FontColor}" Offset="0.33" />
-                        <GradientStop Color="{StaticResource Editor.Disabled.FontColor}" Offset="0.66" />
+                        <GradientStop Color="{StaticResource Editor.Disabled.FontColor}" Offset="0.67" />
                         <GradientStop Color="Transparent" Offset="1" />
                     </LinearGradientBrush.GradientStops>
                 </LinearGradientBrush>
@@ -95,7 +95,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="1" x:Name="browserContent">
             <StackPanel.Effect>
-                <DropShadowEffect Opacity="0.6" BlurRadius="15" ShadowDepth="2"/>
+                <DropShadowEffect Opacity="0.6" BlurRadius="13" ShadowDepth="2"/>
             </StackPanel.Effect>
             <local:OpenProjectView x:Name="openProjectView"/>
             <local:NewProjectView x:Name="newProjectView" IsEnabled="False" Margin="800,0,0,0" />

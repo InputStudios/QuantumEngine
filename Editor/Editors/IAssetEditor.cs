@@ -1,10 +1,6 @@
 ﻿// Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
-
-// Copyright (c) Andrey Trepalin. 
-// Distributed under the MIT license. See the LICENSE file in the project root for more information.
-
 using Editor.Content;
 
 namespace Editor.Editors
@@ -13,6 +9,6 @@ namespace Editor.Editors
     {
         Asset Asset { get; }
 
-        void SetAsset(Asset asset);
+        void SetAsset(AssetInfo asset);
     }
 }

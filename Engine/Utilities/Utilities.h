@@ -7,7 +7,7 @@
 #define USE_STL_DEQUE 1
 
 #if USE_STL_VECTOR
-#include <algorithm>
+
 #include <vector>
 namespace Quantum::util {
     template<typename T>

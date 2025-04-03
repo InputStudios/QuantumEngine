@@ -4,24 +4,15 @@
 using Editor.ContentToolSAPIStructs;
 using Editor.DLLWrappers;
 using Editor.Editors;
-using Editor.GameProject;
 using Editor.Utilities.Controls;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Editor.Content
 {
@@ -49,7 +40,7 @@ namespace Editor.Content
             if (!IsInitialized) return;
 
             var primitiveType = (PrimitiveMeshType)primTypeComboBox.SelectedItem;
-            var info = new PrimitiveInitInfo() {  Type = primitiveType };
+            var info = new PrimitiveInitInfo() { Type = primitiveType };
             var smoothAngle = 0;
 
             switch (primitiveType)
@@ -114,7 +105,7 @@ namespace Editor.Content
                 brush.ViewportUnits = BrushMappingMode.Absolute;
                 brush.Freeze();
                 _textures.Add(brush);
-            }    
+            }
         }
 
         static PrimitiveMeshDialog()
@@ -145,18 +136,15 @@ namespace Editor.Content
 
         private void OnSave_Button_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new SaveFileDialog()
-            {
-                InitialDirectory = Project.Current.ContentPath,
-                Filter = "Asset file (*.asset)|*.asset"
-            };
-
+            var dlg = new SaveDialog();
             if (dlg.ShowDialog() == true)
             {
-                Debug.Assert(!string.IsNullOrEmpty(dlg.FileName));
+                Debug.Assert(!string.IsNullOrEmpty(dlg.SaveFilePath));
                 var asset = (DataContext as IAssetEditor).Asset;
                 Debug.Assert(asset != null);
-                asset.Save(dlg.FileName);
+                asset.Save(dlg.SaveFilePath);
+
+                // NOTE: you can choose to close this window after saving.
             }
         }
     }

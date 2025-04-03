@@ -32,5 +32,10 @@ namespace Editor.GameProject
             win.DialogResult = dialogResult;
             win.Close();
         }
+
+        private void OnOpenPath_Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

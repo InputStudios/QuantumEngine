@@ -87,6 +87,16 @@ namespace Quantum::graphics {
         gfx.surface.render(_id, info);
     }
 
+    void create_light_set(u64 light_set_key)
+    {
+        gfx.light.create_light_set(light_set_key);
+    }
+
+    void remove_light_set(u64 light_set_key)
+    {
+        gfx.light.remove_light_set(light_set_key);
+    }
+
     light create_light(light_init_info info)
     {
         return gfx.light.create(info);
@@ -115,6 +125,25 @@ namespace Quantum::graphics {
         gfx.light.set_parameter(_id, _light_set_key, light_parameter::color, &color, sizeof(color));
     }
 
+    void light::attenuation(math::v3 attenuation) const
+    {
+        assert(is_valid());
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::attenuation, &attenuation, sizeof(attenuation));
+    }
+
+    void light::range(f32 range) const
+    {
+        assert(is_valid());
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::range, &range, sizeof(range));
+    }
+
+    void light::cone_angles(f32 umbra, f32 penumbra) const
+    {
+        assert(is_valid());
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::umbra, &umbra, sizeof(umbra));
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::penumbra, &penumbra, sizeof(penumbra));
+    }
+
     bool light::is_enabled() const
     {
         assert(is_valid());
@@ -136,6 +165,38 @@ namespace Quantum::graphics {
         math::v3 color;
         gfx.light.set_parameter(_id, _light_set_key, light_parameter::color, &color, sizeof(color));
         return color;
+    }
+
+    math::v3 light::attenuation() const
+    {
+        assert(is_valid());
+        math::v3 attenuation;
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::attenuation, &attenuation, sizeof(attenuation));
+        return attenuation;
+    }
+
+    f32 light::range() const
+    {
+        assert(is_valid());
+        f32 range;
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::range, &range, sizeof(range));
+        return range;
+    }
+
+    f32 light::umbra() const
+    {
+        assert(is_valid());
+        f32 umbra;
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::umbra, &umbra, sizeof(umbra));
+        return umbra;
+    }
+
+    f32 light::penumbra() const
+    {
+        assert(is_valid());
+        f32 penumbra;
+        gfx.light.set_parameter(_id, _light_set_key, light_parameter::penumbra, &penumbra, sizeof(penumbra));
+        return penumbra;
     }
 
     light::type light::light_type() const
