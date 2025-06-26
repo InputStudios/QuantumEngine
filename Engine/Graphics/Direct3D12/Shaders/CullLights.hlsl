@@ -60,7 +60,7 @@ bool Intersects(Frustum frustum, Sphere sphere, float minDepth, float maxDepth)
 
 // NOTE: TILE_SIZE is defined by the engine at compile-time.
 [numthreads(TILE_SIZE, TILE_SIZE, 1)]
-void CullLightsCs(ComputeShaderInput csIn)
+void CullLightsCS(ComputeShaderInput csIn)
 {
     // INITIALIZATION SECTION
     //
@@ -71,6 +71,7 @@ void CullLightsCs(ComputeShaderInput csIn)
     //          | 0  B  0  0 |          |  0   1/8  0    0  |
     //          | 0  0  C  D |          |  0    0   0   -1  |
     //          | 0  0 -1  0 |          |  0    0  1/D  C/D |
+    // 
     // To transform a position vector v from clip to view-space:
     //
     // q = mul(inverse_projection, v);
@@ -179,7 +180,7 @@ void CullLightsCs(ComputeShaderInput csIn)
         }
 
         InterlockedAdd(LightIndexCounter[0], numPOintLights + numSpotLights, _lightIndexStartOffset);
-        _spotLightStartOffset = _LightIndexStartOffset + numPointLights;
+        _spotlightStartOffset = _LightIndexStartOffset + numPointLights;
         LightGrid_Opaque[gridIndex] = uint2(_lightIndexStartOffset, (numPointLights << 16) | numSpotLights);
     }
 
@@ -198,7 +199,7 @@ void CullLightsCs(ComputeShaderInput csIn)
         else if (i_lightFlagsOpaque[i] == 2)
         {
             InterlockedAdd(_opaqueLightIndex.y, 1, spotIndex);
-            LightIndexList_Opaque[_spotLigthStartOffset + spotIndex] = _lightIndexList[i];
+            LightIndexList_Opaque[_spotlightStartOffset + spotIndex] = _lightIndexList[i];
         }
     }
 }
@@ -232,7 +233,7 @@ Texture2DArray                                          ResourceDescriptorHeap  
 //
 // NOTE: TILE_SIZE is defined by the engine at compile-time.
 [numthreads(TILE_SIZE, TILE_SIZE, 1)]
-void CullLightsCs(ComputeShaderInput csIn)
+void CullLightsCS(ComputeShaderInput csIn)
 {
     // INITIALIZATION SECTION
     if (csIn.GroupIndex == 0) // only the first thread in the group need to initialize grouphared memory

@@ -45,8 +45,8 @@ float4 Heatmap(StructuredBuffer<uint2> buffer, float2 posXY, float blend)
         float3(1, 0, 0),
     };
     const uint mapTexLen = 5;
-    const uint maxheat = 40;
-    float l = saturate((float) numLights / maxheat) * mapTexLen;
+    const uint maxHeat = 40;
+    float l = saturate((float) numLights / maxHeat) * mapTexLen;
     float3 a = mapTex[floor(l)];
     float3 b = mapTex[ceil(l)];
     float3 heatmap = lerp(a, b, l - floor(l));
@@ -71,7 +71,7 @@ float4 PostProcessPS(in noperspective float4 Position : SV_Position, in noperspe
     
     if (GetGridIndex(float2(Position.x + halfTile, Position.y), w) == gridIndex && GetGridIndex(float2(Position.x, Position.y + halfTile), w) == gridIndex)
     {
-        color = abs(f.Planes[1].Normal);
+        color = abs(f.Planes[0].Normal);
     }
     else if (GetGridIndex(float2(Position.x + halfTile, Position.y), w) != gridIndex && GetGridIndex(float2(Position.x, Position.y + halfTile), w) == gridIndex)
     {
@@ -89,7 +89,7 @@ float4 PostProcessPS(in noperspective float4 Position : SV_Position, in noperspe
     
 #elif 0 // INDEX VISUALIZATION
     const uint2 pos = uint2(Position.xy);
-    const uint tileX = ceil(GViewWidth /TILE_SIZE); 
+    const uint tileX = ceil(GlobalData.ViewWidth /TILE_SIZE); 
     const uint2 idx = pos / (uint2)TILE_SIZE;
     
     float c = (idx.x + tileX * idx.y) * 0.00001f;

@@ -74,12 +74,12 @@ namespace Quantum::graphics::d3d12 {
         d3d12_buffer() = default;
         explicit d3d12_buffer(d3d12_buffer_init_info info, bool is_cpu_accessible);
         DISABLE_COPY(d3d12_buffer);
-        constexpr d3d12_buffer(d3d12_buffer&& o) : _buffer{ o._buffer }, _gpu_address{ o._gpu_address }, _size{ o._size }
+        constexpr d3d12_buffer(d3d12_buffer && o) : _buffer{ o._buffer }, _gpu_address{ o._gpu_address }, _size{ o._size }
         {
             o.reset();
         }
 
-        constexpr d3d12_buffer& operator=(d3d12_buffer&& o)
+        constexpr d3d12_buffer& operator = (d3d12_buffer&& o)
         {
             assert(this != &o);
             if (this != &o)

@@ -301,8 +301,7 @@ namespace Quantum::graphics::d3d12::content {
                 std::lock_guard lock{ pso_mutex };
                 const id::id_type id{ (u32)pipeline_states.size() };
                 pipeline_states.emplace_back(pso);
-                NAME_D3D12_OBJECT_INDEXED(pipeline_states.back(), key,
-                                          is_depth ? L"Depth-only Pipeline State Object - key" : L"GPass Pipeline State Object - key");
+                NAME_D3D12_OBJECT_INDEXED(pipeline_states.back(), key, is_depth ? L"Depth-only Pipeline State Object - key" : L"GPass Pipeline State Object - key");
                 pso_map[key] = id;
                 return id;
             }

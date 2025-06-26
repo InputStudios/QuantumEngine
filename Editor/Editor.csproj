@@ -87,4 +87,9 @@
 	  <None Include="Resources\app_icon.ico" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Content\ImportSettingConfig\" />
+	  <Folder Include="Resources\TextureEditor\" />
+	</ItemGroup>
+
 </Project>

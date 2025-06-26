@@ -43,8 +43,7 @@ void init_test_workers(FnPtr&& fnPtr, Args&&... args)
 {
 #if ENABLE_TEST_WORKERS
     shutdown = false;
-    for (auto& w : workers)
-        w = std::thread(std::Forward<FnPtr>(fnPtr), std::forward<Args>(args)...);
+    for (auto& w : workers) w = std::thread(std::Forward<FnPtr>(fnPtr), std::forward<Args>(args)...);
 #endif
 }
 
@@ -84,7 +83,7 @@ void test_lights(f32 dt);
 LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
     bool toggle_fullscreen{ false };
-
+	
     switch (msg) 
     {
     case WM_DESTROY:
@@ -130,7 +129,7 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
             test_initialize();
         }
     }
-
+	
     if ((resized && GetKeyState(VK_LBUTTON) >= 0) || toggle_fullscreen)
     {
         platform::window win{ platform::window_id{(id::id_type)GetWindowLongPtr(hwnd, GWLP_USERDATA)} };
@@ -152,32 +151,30 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
             {
                 _surfaces[i].surface.surface.resize(win.width(), win.height());
                 _surfaces[i].camera.aspect_ratio((f32)win.width() / win.height());
-
+				
                 resized = false;
             }
             break;
         }
     }
-
+	
     return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-game_entity::entity create_one_game_entity(math::v3 position, math::v3 rotation, const char* script_name)
-{
+game_entity::entity create_one_game_entity(math::v3 position, math::v3 rotation, const char* script_name) {
     transform::init_info transform_info{};
     DirectX::XMVECTOR quat{ DirectX::XMQuaternionRotationRollPitchYawFromVector(DirectX::XMLoadFloat3(&rotation)) };
     math::v4a rot_quat;
     DirectX::XMStoreFloat4A(&rot_quat, quat);
     memcpy(&transform_info.rotation[0], &rot_quat.x, sizeof(transform_info.rotation));
     memcpy(&transform_info.position[0], &position.x, sizeof(transform_info.position));
-
+	
     script::init_info script_info{};
-    if (script_name)
-    {
+    if (script_name) {
         script_info.script_creator = script::detail::get_script_creator_internal(script::detail::string_hash()(script_name));
         assert(script_info.script_creator);
     }
-
+	
     game_entity::entity_info entity_info{};
     entity_info.transform = &transform_info;
     entity_info.script = &script_info;
@@ -186,15 +183,13 @@ game_entity::entity create_one_game_entity(math::v3 position, math::v3 rotation,
     return ntt;
 }
 
-void remove_game_entity(game_entity::entity_id id)
-{
+void remove_game_entity(game_entity::entity_id id) {
     game_entity::remove(id);
 }
 
-bool read_file(std::filesystem::path path, std::unique_ptr<u8[]>& data, u64& size)
-{
+bool read_file(std::filesystem::path path, std::unique_ptr<u8[]>& data, u64& size) {
     if (!std::filesystem::exists(path)) return false;
-
+	
     size = std::filesystem::file_size(path);
     assert(size);
     if (!size) return false;
@@ -205,22 +200,20 @@ bool read_file(std::filesystem::path path, std::unique_ptr<u8[]>& data, u64& siz
         file.close();
         return false;
     }
-
+	
     file.close();
     return true;
 }
 
-void create_camera_surface(camera_surface& surface, platform::window_init_info info)
-{
+void create_camera_surface(camera_surface& surface, platform::window_init_info info) {
     surface.surface.window = platform::create_window(&info);
     surface.surface.surface = graphics::create_surface(surface.surface.window);
     surface.entity = create_one_game_entity({ 13.76f, 3.f, -1.1f }, {-0.117f, -2.1f, 0.f }, "camera_script");
     surface.camera = graphics::create_camera(graphics::perspective_camera_init_info{surface.entity.get_id()});
-    surface.camera.aspect_ratio((f32)surface.surface.window.width() /surface.surface.window.height());
+    surface.camera.aspect_ratio((f32)surface.surface.window.width() / surface.surface.window.height());
 }
 
-void destroy_camera_surface(camera_surface& surface)
-{
+void destroy_camera_surface(camera_surface& surface) {
     camera_surface temp{ surface };
     surface = {};
     if (temp.surface.surface.is_valid()) graphics::remove_surface(temp.surface.surface.get_id());
@@ -229,42 +222,39 @@ void destroy_camera_surface(camera_surface& surface)
     if (temp.entity.is_valid()) game_entity::remove(temp.entity.get_id());
 }
 
-bool test_initialize()
-{
-    while (!compile_shaders())
-    {
+bool test_initialize() {
+    while (!compile_shaders()) {
         // Pop up a message box allowing the user to retry compilation.
         if (MessageBox(nullptr, L"Failed to compile engine shaders.", L"Shader Compilation Error", MB_RETRYCANCEL) != IDRETRY)
         return false;
     }
-
+	
     if (!graphics::initialize(graphics::graphics_platform::direct3d12)) return false;
-
-    platform::window_init_info info[]
-    {
+	
+    platform::window_init_info info[] {
         {&win_proc, nullptr, L"Render window 1", 100 - 3000, 100 - 700, 400, 800},
         {&win_proc, nullptr, L"Render window 2", 150 - 3000, 150 - 700, 800, 400},
         {&win_proc, nullptr, L"Render window 3", 200 - 3000, 200 - 700, 400, 400},
         {&win_proc, nullptr, L"Render window 4", 250 - 3000, 250 - 700, 800, 600},
     };
     static_assert(_countof(info) == _countof(_surfaces));
-
+	
     for (u32 i{ 0 }; i < _countof(_surfaces); ++i) create_camera_surface(_surfaces[i], info[i]);
-
+	
     // load test model
     std::unique_ptr<u8[]> model;
     u64 size{ 0 };
     if (!read_file("..\\..\\enginetest\\model.model", model, size)) return false;
-
+	
     model_id = content::create_resource(model.get(), content::asset_type::mesh);
     if (!id::is_valid(model_id)) return false;
-
+	
     init_test_workers(buffer_test_worker);
-
+	
     create_render_items();
-
+	
     generate_lights();
-
+	
     input::input_source source{};
     source.binding = std::hash<std::string>()("move");
     source.source_type = input::input_source::keyboard;
@@ -272,29 +262,29 @@ bool test_initialize()
     source.multiplier = 1.f;
     source.axis = input::axis::x;
     input::bind(source);
-
+	
     source.code = input::input_code::key_d;
     source.multiplier = -1.f;
     input::bind(source);
-
+	
     source.code = input::input_code::key_w;
     source.multiplier = 1.f;
     source.axis = input::axis::z;
     input::bind(source);
-
+	
     source.code = input::input_code::key_s;
     source.multiplier = -1.f;
     input::bind(source);
-
+	
     source.code = input::input_code::key_q;
     source.multiplier = -1.f;
     source.axis = input::axis::y;
     input::bind(source);
-
+	
     source.code = input::input_code::key_e;
     source.multiplier = -1.f;
     input::bind(source);
-
+	
     is_restarting = false;
     return true;
 }
@@ -305,15 +295,14 @@ void test_shutdown()
     remove_lights();
     destroy_render_item();
     joint_test_workers();
-
+	
     if (id::is_valid(model_id))
     {
         content::destroy_resource(model_id, content::asset_type::mesh);
     }
-
-    for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
-        destroy_camera_surface(_surfaces[i]);
-
+	
+    for (u32 i{ 0 }; i < _countof(_surfaces); ++i) destroy_camera_surface(_surfaces[i]);
+	
     graphics::shutdown();
 }
 
@@ -327,8 +316,8 @@ void engine_test::run()
     static u32 counter{ 0 };
     static u32 light_set_key{ 0 };
     ++counter;
-    if ((counter % 90) == 0) light_set_key = (light_set_key + 1) % 2;
-
+    // if ((counter % 90) == 0) light_set_key = (light_set_key + 1) % 2;
+	
     timer.begin();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     const f32 dt{ timer.dt_avg() };
@@ -339,10 +328,10 @@ void engine_test::run()
         if (_surfaces[i].surface.surface.is_valid())
         {
             f32 thresholds[3]{};
-
+			
             id::id_type render_items[3]{};
             get_render_items(&render_items[0], 3);
-
+			
             graphics::frame_info info{};
             info.render_item_ids = &render_items[0];
             info.render_item_count = 3;
@@ -350,7 +339,7 @@ void engine_test::run()
             info.light_set_key = light_set_key;
             info.average_frame_time = dt;
             info.camera_id = _surfaces[i].camera.get_id();
-
+			
             assert(_countof(thresholds) >= info.render_item_count);
             _surfaces[i].surface.surface.render(info);
         }

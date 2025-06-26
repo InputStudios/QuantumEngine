@@ -15,4 +15,7 @@
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Scripts.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

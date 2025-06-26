@@ -18,16 +18,16 @@ namespace Quantum::graphics {
         u32                 render_item_count{ 0 };
         camera_id           camera_id{ id::invalid_id };
     };
-
+	
     DEFINE_TYPED_ID(surface_id);
-
+	
     class surface {
         public:
             constexpr explicit surface(surface_id id) : _id{ id } {}
             constexpr surface() = default;
             constexpr surface_id get_id() const { return _id; }
             constexpr bool is_valid() const { return id::is_valid(_id); }
-
+			
             void resize(u32 width, u32 height) const;
             u32 width() const;
             u32 height() const;
@@ -35,21 +35,21 @@ namespace Quantum::graphics {
         private:
             surface_id _id{ id::invalid_id };
     };
-
+	
     struct render_surface
     {
         platform::window             window{};
         Quantum::graphics::surface   surface{};
     };
-
+	
     struct directional_light_params {};
-
+	
     struct point_light_params
     {
         math::v3        attenuation;
         f32             range;
     };
-
+	
     struct spot_light_params
     {
         math::v3        attenuation;
@@ -59,7 +59,7 @@ namespace Quantum::graphics {
         // Penumbra angle in radiant [umbra, pi}
         f32             penumbra;
     };
-
+	
     struct light_init_info
     {
         u64                                 light_set_key{ 0 };
@@ -75,7 +75,7 @@ namespace Quantum::graphics {
         };
         bool                                is_enabled{ true };
     };
-
+	
     struct light_parameter {
         enum parameter : u32 {
             is_enabled,
@@ -87,11 +87,11 @@ namespace Quantum::graphics {
             penumbra,
             type,
             entity_id,
-
+			
             count
         };
     };
-
+	
     struct camera_parameter {
         enum parameter : u32 {
             up_vector,
@@ -108,11 +108,11 @@ namespace Quantum::graphics {
             inverse_view_projection,
             type,
             entity_id,
-
+			
             count
         };
     };
-
+	
     struct camera_init_info
     {
         id::id_type      entity_id{ id::invalid_id };
@@ -129,7 +129,7 @@ namespace Quantum::graphics {
         f32 near_z;
         f32 far_z;
     };
-
+	
     struct perspective_camera_init_info : public camera_init_info
     {
         explicit perspective_camera_init_info(id::id_type id)
@@ -144,7 +144,7 @@ namespace Quantum::graphics {
             far_z = 1000.f;
         }
     };
-
+	
     struct orthographic_camera_init_info : public camera_init_info
     {
         explicit orthographic_camera_init_info(id::id_type id)
@@ -159,7 +159,7 @@ namespace Quantum::graphics {
             far_z = 1000.f;
         }
     };
-
+	
     struct shader_flags
     {
         enum flags : u32 {
@@ -174,7 +174,7 @@ namespace Quantum::graphics {
             mesh            = 0x80,
         };
     };
-
+	
     struct shader_type
     {
         enum type : u32 {
@@ -186,20 +186,20 @@ namespace Quantum::graphics {
             compute,
             amplification,
             mesh,
-
+			
             count
         };
     };
-
+	
     struct material_type {
         enum type : u32 {
             opaque,
             // transparent, unlit, clear_coast, cloth, skin, foliage, hair, etc.
-
+			
             count
         };
     };
-
+	
     struct material_init_info 
     {
         material_type::type     type;
@@ -207,7 +207,7 @@ namespace Quantum::graphics {
         id::id_type             shader_ids[shader_type::count]{ id::invalid_id, id::invalid_id, id::invalid_id, id::invalid_id, id::invalid_id, id::invalid_id, id::invalid_id, id::invalid_id };
         id::id_type*            texture_ids;
     };
-
+	
     struct primitive_topology {
         enum type : u32 {
             point_list = 1,
@@ -215,46 +215,45 @@ namespace Quantum::graphics {
             line_strip,
             triangle_list,
             triangle_strip,
-
+			
             count
         };
     };
-
+	
     enum class graphics_platform : u32
     {
         direct3d12 = 0,
     };
-
+	
     bool initialize(graphics_platform platform);
     void shutdown();
-
+	
     // Get the location of compiled engine shaders relative to the executable's path.
     // The path is for the graphics API that's currently in use.
     const char* get_engine_shaders_path();
-
+	
     // Get the location of compiled engine shaders, for the specified platform, relative to the executable's path.
     // The path is for the graphics API that's currently in use.
     const char* get_engine_shaders_path(graphics_platform platform);
-
+	
     surface create_surface(platform::window window);
     void remove_surface(surface_id id);
-
+	
     void create_light_set(u64 light_set_key);
     void remove_light_set(u64 light_set_key);
-
+	
     light create_light(light_init_info info);
     void remove_light(light_id id, u64 light_set_key);
-
+	
     camera create_camera(camera_init_info info);
     void remove_camera(camera_id id);
-
+	
     id::id_type add_submesh(const u8*& data);
     void remove_submesh(id::id_type id);
-
+	
     id::id_type add_material(material_init_info info);
     void remove_material(id::id_type id);
-
-    id::id_type add_render_item(id::id_type entity_id, id::id_type geometry_content_id,
-                                u32 material_count, const id::id_type* const material_ids);
+	
+    id::id_type add_render_item(id::id_type entity_id, id::id_type geometry_content_id, u32 material_count, const id::id_type* const material_ids);
     void remove_render_item(id::id_type id);
 }

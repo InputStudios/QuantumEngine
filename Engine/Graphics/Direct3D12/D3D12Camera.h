@@ -9,7 +9,7 @@ namespace Quantum::graphics::d3d12::camera {
     {
     public:
         explicit d3d12_camera(camera_init_info info);
-
+		
         void update();
         void up(math::v3 up);
         constexpr void field_of_view(f32 fov);
@@ -18,7 +18,7 @@ namespace Quantum::graphics::d3d12::camera {
         constexpr void view_height(f32 height);
         constexpr void near_z(f32 near_z);
         constexpr void far_z(f32 far_z);
-
+		
         [[nodiscard]] constexpr DirectX::XMMATRIX view() const { return _view; }
         [[nodiscard]] constexpr DirectX::XMMATRIX projection() const { return _projection; }
         [[nodiscard]] constexpr DirectX::XMMATRIX inverse_projection() const { return _inverse_projection; }
@@ -58,7 +58,7 @@ namespace Quantum::graphics::d3d12::camera {
         id::id_type             _entity_id;
         bool                    _is_dirty;
     };
-
+	
     graphics::camera create(camera_init_info info);
     void remove(camera_id id);
     void set_parameter(camera_id id, camera_parameter::parameter, const void* const data, u32 data_size);

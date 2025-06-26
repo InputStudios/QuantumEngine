@@ -377,6 +377,7 @@
                                            DockPanel.Dock="Left" FontWeight="Bold"
                                            Foreground="{StaticResource Editor.FontBrush}"
                                            Text="{TemplateBinding Title}"/>
+                                 
                                 <Button x:Name="btnClose" Click="OnClose_Button_Click">
                                     <Button.Content>
                                         <Grid>

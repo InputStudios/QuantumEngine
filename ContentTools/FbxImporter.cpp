@@ -16,8 +16,7 @@
 #pragma comment(lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\release\\libxml2-md.lib")
 #pragma comment(lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\release\\zlib-md.lib")
 #endif
-
-// LNK PDB not found warnings can be resolved either by installing FBX PDBs (separate download) or 
+// LNK4099 PDB not found warnings can be resolved either by installing FBX PDBs (separate download) or 
 // by disabling this warning in linker options (Linker command line: /ignore:4099).
 
 namespace Quantum::tools {
