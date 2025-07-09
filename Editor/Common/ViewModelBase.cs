@@ -13,9 +13,9 @@ namespace Editor
     public class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-
-        // NOTE (to myself): If you're here to make thius methgod internal, don't! Fine another way! Use the Forece! I've faith in you!
-        protected void OnPropertyChanged(string propertyName)
+		
+        // NOTE (to myself): If you're here to make this method internal, don't! Fine another way! Use the Force! I've faith in you!
+        protected internal void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

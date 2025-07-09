@@ -43,19 +43,19 @@ namespace Quantum::graphics::d3d12::delight {
             //       is run at least one in order to clear the buffer.
             bool                                    has_lights{ true };
         };
-
+		
         struct light_culler
         {
             culling_parameters                      cullers[frame_buffer_count]{};
         };
-
+		
         constexpr u32                               max_light_per_title{ 256 };
-
+		
         ID3D12RootSignature*                        light_culling_root_signature{ nullptr };
         ID3D12PipelineState*                        grid_frustum_pso{ nullptr };
         ID3D12PipelineState*                        light_culling_pso{ nullptr };
         util::free_list<light_culler>               light_cullers;
-        
+		  
         bool create_root_signature()
         {
             assert(!light_culling_root_signature);
@@ -69,13 +69,13 @@ namespace Quantum::graphics::d3d12::delight {
             parameters[param::bounding_spheres].as_srv(D3D12_SHADER_VISIBILITY_ALL, 2);
             parameters[param::light_grid_opaque].as_uav(D3D12_SHADER_VISIBILITY_ALL, 1);
             parameters[param::light_grid_opaque].as_uav(D3D12_SHADER_VISIBILITY_ALL, 3);
-
+			
             light_culling_root_signature = d3dx::d3d12_root_signature_desc{ &parameters[0], _countof(parameters) }.create();
             NAME_D3D12_OBJECT(light_culling_root_signature, L"Light Culling Root Signature");
-
+			
             return light_culling_root_signature != nullptr;
         }
-
+		
         bool create_psos()
         {
             {
@@ -84,7 +84,7 @@ namespace Quantum::graphics::d3d12::delight {
                     d3dx::d3d12_pipeline_state_subobject_root_signature root_signature{ light_culling_root_signature };
                     d3dx::d3d12_pipeline_state_subobject_cs cs{ shaders::get_engine_shader(shaders::engine_shader::grid_frustums_cs) };
                 } stream;
-
+				
                 grid_frustum_pso = d3dx::create_pipeline_state(&stream, sizeof(stream));
                 NAME_D3D12_OBJECT(grid_frustum_pso, L"Grid Frustums PSO");
             }
@@ -94,42 +94,42 @@ namespace Quantum::graphics::d3d12::delight {
                     d3dx::d3d12_pipeline_state_subobject_root_signature root_signature{ light_culling_root_signature };
                     d3dx::d3d12_pipeline_state_subobject_cs cs{ shaders::get_engine_shader(shaders::engine_shader::light_culling_cs) };
                 } stream;
-
+				
                 light_culling_pso = d3dx::create_pipeline_state(&stream, sizeof(stream));
                 NAME_D3D12_OBJECT(light_culling_pso, L"Light Culling PSO");
             }
             return grid_frustum_pso != nullptr && light_culling_pso != nullptr;
         }
-
+		
         void resize_buffers(culling_parameters& culler)
         {
             const u32 frustum_count{ culler.frustum_count };
-
+			
             const u32 frustums_buffer_size{ sizeof(hlsl::Frustum) * frustum_count };
             const u32 light_grid_buffer_size{ (u32)math::align_size_up<sizeof(math::v4)>(sizeof(math::u32v2) * frustum_count) };
             const u32 light_index_list_buffer_size{ (u32)math::align_size_up<sizeof(math::v4)>(sizeof(u32) * max_light_per_title * frustum_count) };
             const u32 light_grid_and_index_list_buffer_size{ light_grid_buffer_size + light_index_list_buffer_size };
-
+			
             d3d12_buffer_init_info info{};
             info.alignment = sizeof(math::v4);
             info.flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-
+			
             if (frustums_buffer_size > culler.frustums.size())
             {
                 info.size = frustums_buffer_size;
                 culler.frustums = d3d12_buffer{ info, false };
                 NAME_D3D12_OBJECT_INDEXED(culler.frustums.buffer(), frustum_count, L"Light Grid Frustums Buffer - count");
             }
-
+			
             if (light_grid_and_index_list_buffer_size > culler.light_grid_and_index_list.size())
             {
                 info.size = light_grid_and_index_list_buffer_size;
                 culler.light_grid_and_index_list = d3d12_buffer{ info, false };
-
+				
                 const D3D12_GPU_VIRTUAL_ADDRESS light_grid_opaque_buffer{ culler.light_grid_and_index_list.gpu_address() };
                 culler.light_index_list_opaque_buffer = light_grid_opaque_buffer + light_grid_buffer_size;
                 NAME_D3D12_OBJECT_INDEXED(culler.light_grid_and_index_list.buffer(), light_grid_and_index_list_buffer_size, L"Light Grid and Index List Buffer - size");
-
+				
                 if (!culler.light_index_counter.buffer())
                 {
                     info = uav_clearable_buffer::get_default_init_info(1);
@@ -138,7 +138,7 @@ namespace Quantum::graphics::d3d12::delight {
                 }
             }
         }
-
+		
         void resize(culling_parameters& culler)
         {
             constexpr u32 tile_size{ light_culling_tile_size };
@@ -148,9 +148,9 @@ namespace Quantum::graphics::d3d12::delight {
                 (u32)math::align_size_up<tile_size>(culler.view_width) / tile_size,
                 (u32)math::align_size_up<tile_size>(culler.view_height) / tile_size,
             };
-
+			
             culler.frustum_count = tile_count.x * tile_count.y;
-
+			
             // Dispatch parameters for grid frustums
             {
                 hlsl::LightCullingDispatchParameters& params{ culler.grid_frustums_dispatch_params };
@@ -158,7 +158,7 @@ namespace Quantum::graphics::d3d12::delight {
                 params.NumThreadGroups.x = (u32)math::align_size_up<tile_size>(tile_count.x) / tile_size;
                 params.NumThreadGroups.y = (u32)math::align_size_up<tile_size>(tile_count.y) / tile_size;
             }
-
+			
             // Dispatch parameters for light culling
             {
                 hlsl::LightCullingDispatchParameters& params{ culler.light_culling_dispatch_params };
@@ -166,10 +166,10 @@ namespace Quantum::graphics::d3d12::delight {
                 params.NumThreads.y = tile_count.y * tile_size;
                 params.NumThreadGroups = tile_count;
             }
-
+			
             resize_buffers(culler);
         }
-
+		
         void calculate_grid_frustums(const culling_parameters& culler, id3d12_graphics_command_list* const cmd_list,
                                     const d3d12_frame_info& d3d12_info, d3dx::d3d12_resource_barrier& barriers)
         {
@@ -177,15 +177,15 @@ namespace Quantum::graphics::d3d12::delight {
             hlsl::LightCullingDispatchParameters* const buffer{ cbuffer.allocate<hlsl::LightCullingDispatchParameters>()};
             const hlsl::LightCullingDispatchParameters& params{ culler.grid_frustums_dispatch_params };
             memcpy(buffer, &params, sizeof(hlsl::LightCullingDispatchParameters));
-
+			
             // Make frustum buffer writable
             // TODO: remove pixel_shader_resouce flag(it's only there so we can visualize grid frustums).
             barriers.add(culler.frustums.buffer(), 
                         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
+			
             barriers.apply(cmd_list);
-
+			
             using param = light_culling_root_parameter;
             cmd_list->SetComputeRootSignature(light_culling_root_signature);
             cmd_list->SetPipelineState(grid_frustum_pso);

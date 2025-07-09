@@ -6,7 +6,7 @@
 
 namespace Quantum::content {
     namespace {
-
+		
         class geometry_hierarchy_stream
         {
         public:
@@ -18,39 +18,39 @@ namespace Quantum::content {
                 {
                     *((u32*)buffer) = lods;
                 }
-
+				
                 _lod_count = *((u32*)buffer);
                 _thresholds = (f32*)(&buffer[sizeof(u32)]);
                 _lod_offsets = (lod_offset*)(&_thresholds[_lod_count]);
                 _gpu_ids = (id::id_type*)(&_lod_offsets[_lod_count]);
             }
-
+			
             void gpu_ids(u32 lod, id::id_type*& ids, u32& id_count)
             {
                 assert(lod < _lod_count);
                 ids = &_gpu_ids[_lod_offsets[lod].offset];
                 id_count = _lod_offsets[lod].count;
             }
-
+			
             u32 lod_from_thresholds(f32 threshold)
             {
                 assert(threshold > 0);
                 if (_lod_count == 1) return 0;
-
+				
                 for (u32 i{ _lod_count - 1 }; i > 0; --i)
                 {
                     if (_thresholds[i] <= threshold) return i;
                 }
-
+				
                 assert(false); // shouldn't ever get here.
                 return 0;
             }
-
+			
             [[nodiscard]] constexpr u32 lod_count() const { return _lod_count; }
             [[nodiscard]] constexpr f32* thresholds() const { return _thresholds; }
             [[nodiscard]] constexpr lod_offset* lod_offsets() const { return _lod_offsets; }
             [[nodiscard]] constexpr id::id_type* gpu_ids() const { return _gpu_ids; }
-
+			
         private:
             u8* const               _buffer;
             f32*                    _thresholds;
@@ -58,7 +58,7 @@ namespace Quantum::content {
             id::id_type*            _gpu_ids;
             u32                     _lod_count;
         };
-
+		
         // NOTE: This is needed to maintain compatibility with STL vector.
         struct noexcept_map {
             std::unordered_map<u32, std::unique_ptr<u8[]>> map;
@@ -68,15 +68,15 @@ namespace Quantum::content {
             noexcept_map& operator = (const noexcept_map&) = default;
             noexcept_map& operator = (noexcept_map&&) noexcept = default;
         };
-
+		
         // This constant indicates that an element in geometry_hierarchiees is not a pointer, but a gpu_id
         constexpr uintptr_t                 single_mesh_marker{ (uintptr_t)0x01 };
         util::free_list<u8*>                geometry_hierarchies;
         std::mutex                          geometry_mutex;
-
+		
         util::free_list<noexcept_map>       shader_groups;
         std::mutex                          shader_mutex;
-
+		
         // NOTE: expects the same data as create_geometry_resource()
         u32 get_geometry_hierarchy_buffer_size(const void* const data)
         {
@@ -86,7 +86,7 @@ namespace Quantum::content {
             constexpr u32 su32{ sizeof(u32) };
             // add size of load_count, thresholds and lod offsets to the size of hierarchy.
             u32 size{ su32 + (sizeof(f32) + sizeof(lod_offset)) * lod_count };
-
+			
             for (u32 lod_idx{ 0 }; lod_idx < lod_count; ++lod_idx)
             {
                 // skip threshold
@@ -96,10 +96,10 @@ namespace Quantum::content {
                 // skip submesh data and go to the next LOD
                 blob.skip(blob.read<u32>());
             }
-
+			
             return size;
         }
-
+		
         // Create a hierarchy stream for a geometry that has multiple LODs and/or multiple submeshes.
         // NOTE: expects the same data as create_geometry_resource()
         id::id_type create_mesh_hierarchy(const void *const data)

@@ -1,0 +1,170 @@
+﻿<UserControl x:Class="Editor.Editors.TextureEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:local="clr-namespace:Editor.Editors"
+             xmlns:ed="clr-namespace:Editor.Editors"
+			 xmlns:content="clr-namespace:Editor.Content"
+             FocusVisualStyle="{x:Null}" Focusable="True"
+			 d:DesignHeight="450" d:DesignWidth="800" mc:Ignorable="d">
+	<UserControl.CommandBindings>
+		<CommandBinding Command="{x:Static ed:TextureViewCommands.CenterCommand}" Executed="OnCenterTexture"/>
+		<CommandBinding Command="{x:Static ed:TextureViewCommands.ZoomInCommand}" Executed="OnZoomInTexture"/>
+		<CommandBinding Command="{x:Static ed:TextureViewCommands.ZoomOutCommand}" Executed="OnZoomOutTexture"/>
+		<CommandBinding Command="{x:Static ed:TextureViewCommands.ZoomFitCommand}" Executed="OnZoomFitTexture"/>
+		<CommandBinding Command="{x:Static ed:TextureViewCommands.ActualSizeCommand}" Executed="OnActualSizeTexture"/>
+	</UserControl.CommandBindings>
+	<UserControl.Resources>
+		<Style BasedOn="{StaticResource LightTextBlockStyle}" TargetType="{x:Type TextBlock}"/>
+		<BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
+	</UserControl.Resources>
+	<UserControl.DataContext>
+		<ed:TextureEditor/>
+	</UserControl.DataContext>
+    <DockPanel d:IsEnabled="True" Background="{StaticResource Editor.Window.GrayBrush2}">
+		<DockPanel.Style>
+			<Style TargetType="{x:Type DockPanel}">
+				<Style.Triggers>
+					<DataTrigger Binding="{Binding Texture}" Value="{x:Null}">
+						<Setter Property="IsEnabled" Value="False"/>
+					</DataTrigger>
+				</Style.Triggers>
+			</Style>
+		</DockPanel.Style>
+		<Border Height="32" Margin="0,0,0,1" VerticalAlignment="Top" Background="{StaticResource Editor.Window.GrayBrush3}" DockPanel.Dock="Top">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="10" Opacity="0.3" ShadowDepth="0"/>
+			</Border.Effect>
+			<StackPanel Margin="5,2"  Orientation="Horizontal">
+				<Button Margin="0,0,2,0" VerticalAlignment="Stretch" Command="{Binding SetAllChannelsCommand}" Content="All"/>
+				<ToggleButton Margin="0,0,2,0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Command="{Binding SetChannelCommand}" CommandParameter="0" IsChecked="{Binding IsRedChannelSelected, Mode=OneWay}">
+					<Rectangle Width="8" Fill="{StaticResource Editor.RedBrush}" IsHitTestVisible="False" Margin="0,3,0,0"/>
+				</ToggleButton>
+				<ToggleButton Margin="0,0,2,0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Command="{Binding SetChannelCommand}" CommandParameter="1" IsChecked="{Binding IsGreenChannelSelected, Mode=OneWay}">
+					<Rectangle Width="8" Fill="{StaticResource Editor.GreenBrush}" IsHitTestVisible="False" Margin="0,3,0,0"/>
+				</ToggleButton>
+				<ToggleButton Margin="0,0,2,0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Command="{Binding SetChannelCommand}" CommandParameter="2" IsChecked="{Binding IsBlueChannelSelected, Mode=OneWay}">
+					<Rectangle Width="8" Fill="{StaticResource Editor.BlueBrush}" IsHitTestVisible="False" Margin="0,3,0,0"/>
+				</ToggleButton>
+				<ToggleButton Margin="0,0,2,0" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Command="{Binding SetChannelCommand}" CommandParameter="3" IsChecked="{Binding IsAlphaChannelSelected, Mode=OneWay}"
+							  Visibility="{Binding Texture.HasAlpha, Converter={StaticResource booleanToVisibilityConverter}}">
+					<Rectangle Width="8" Fill="{StaticResource Editor.FontBrush}" IsHitTestVisible="False" Margin="0,3,0,0"/>
+				</ToggleButton>
+				
+				<ToggleButton Content="View as Normal Map" Padding="5" Margin="5,0" VerticalAlignment="Stretch" d:Visibility="Visible" Command="{Binding RegeneratedBitmapsCommand}"
+							  CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" IsChecked="{Binding Texture.IsNormalMap, Mode=OneWay}">
+					<ToggleButton.Style>
+						<Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource QuantumButtonStyle}">
+							<Setter Property="IsEnabled" Value="False"/>
+							<Setter Property="Visibility" Value="Collapsed"/>
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Texture.Format}" Value="{x:Static content:DXGI_FORMAT.DXGI_FORMAT_BC5_UNORM}">
+									<Setter Property="IsEnabled" Value="True"/>
+									<Setter Property="Visibility" Value="Visible"/>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</ToggleButton.Style>
+				</ToggleButton>
+				
+				<TextBlock Margin="5,0" Text="Layer:" Visibility="{Binding Path=Visibility, ElementName=arraySlider}"/>
+				<Slider x:Name="arraySlider" Width="200" VerticalAlignment="Center" Interval="1" IsSnapToTickEnabled="True"
+						Maximum="{Binding MaxArrayIndex}" Minimum="0" TickPlacement="BottomRight" Value="{Binding ArrayIndex}" Margin="0,0,10,0" d:Visibility="Visible">
+					<Slider.Style>
+						<Style TargetType="{x:Type Slider}">
+							<Setter Property="Visibility" Value="Collapsed"/>
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Texture.IsVolumeMap}" Value="False">
+									<Setter Property="Visibility" Value="Visible"/>
+								</DataTrigger>
+								<DataTrigger Binding="{Binding MaxArrayIndex}" Value="0">
+									<Setter Property="IsEnabled" Value="False"/>
+									<Setter Property="Visibility" Value="Collapsed"/>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</Slider.Style>
+				</Slider>
+				
+				<TextBlock Margin="5,0" Text="Depth:" Visibility="{Binding Path=Visibility, ElementName=depthSlider}"/>
+				<Slider x:Name="depthSlider" Width="200" VerticalAlignment="Center" Interval="1" IsSnapToTickEnabled="True"
+						Maximum="{Binding MaxDepthIndex}" Minimum="0" TickPlacement="BottomRight" Value="{Binding DepthIndex}" Margin="0,0,10,0" d:Visibility="Visible">
+					<Slider.Style>
+						<Style TargetType="{x:Type Slider}">
+							<Setter Property="Visibility" Value="Collapsed"/>
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding Texture.IsVolumeMap}" Value="True">
+									<Setter Property="Visibility" Value="Visible"/>
+								</DataTrigger>
+								<DataTrigger Binding="{Binding MaxDepthIndex}" Value="0">
+									<Setter Property="IsEnabled" Value="False"/>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</Slider.Style>
+				</Slider>
+				
+				<TextBlock Margin="5,0" Text="Mip:" Visibility="{Binding Path=Visibility, ElementName=mipSlider}"/>
+				<Slider x:Name="mipSlider" Width="200" VerticalAlignment="Center" Interval="1" IsSnapToTickEnabled="True"
+						Maximum="{Binding MaxMipIndex}" Minimum="0" TickPlacement="BottomRight" Value="{Binding MipIndex}" IsMoveToPointEnabled="True" d:Visibility="Visible">
+					<Slider.Style>
+						<Style TargetType="{x:Type Slider}">
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding MaxMipIndex}" Value="0">
+									<Setter Property="IsEnabled" Value="False"/>
+									<Setter Property="Visibility" Value="Collapsed"/>
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</Slider.Style>
+				</Slider>
+			</StackPanel>
+		</Border>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition MinWidth="250" MaxWidth="400"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<ed:TextureDetailsView Margin="0,0,5,0"/>
+			<GridSplitter Width="5" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="{StaticResource Editor.Window.GrayBrush1}"/>
+			<ed:TextureView x:Name="textureView" Grid.Column="1"/>
+			
+			<!-- HELP -->
+			<Border CornerRadius="10" Background="#40000000" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Bottom" BorderBrush="Black" BorderThickness="2" Grid.Column="1">
+				<Border.Style>
+					<Style TargetType="{x:Type Border}">
+						<Setter Property="Opacity" Value="0.3"/>
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding Path=IsExpanded, ElementName=expanderHelp}" Value="True">
+								<Setter Property="Opacity" Value="1"/>
+							</DataTrigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Opacity" Value="1"/>
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</Border.Style>
+				<Expander ExpandDirection="Up" x:Name="expanderHelp" d:IsExpanded="True">
+					<Expander.Header>
+						<TextBlock Text="?" FontSize="20" FontFamily="Arial" Foreground="White" FontWeight="Bold" Margin="-3,0,5,0"/>
+					</Expander.Header>
+					<StackPanel Margin="10" Opacity="0.8">
+						<StackPanel.Resources>
+							<Style TargetType="{x:Type TextBlock}">
+								<Setter Property="Foreground" Value="{StaticResource Editor.OrangeBrush}"/>
+							</Style>
+						</StackPanel.Resources>
+						<TextBlock Text="RBM+drag: pan"/>
+						<TextBlock Text="Mouse wheel: zoom in/out"/>
+						<TextBlock Text="Home: center image"/>
+						<TextBlock Text="Ctrl+Plus: zoom in"/>
+						<TextBlock Text="Ctrl+Minus: zoom out"/>
+						<TextBlock Text="Ctrl+0: zoom to actual size"/>
+						<TextBlock Text="Alt+0: zoom to fit"/>
+					</StackPanel>
+				</Expander>
+			</Border>
+		</Grid>
+	</DockPanel>
+</UserControl>

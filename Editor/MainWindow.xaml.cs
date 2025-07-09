@@ -2,6 +2,7 @@
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
 using Editor.Content;
+using Editor.DLLWrappers;
 using Editor.GameProject;
 using System;
 using System.ComponentModel;
@@ -17,21 +18,14 @@ namespace Editor
     public partial class MainWindow : Window
     {
         public static string QuantumPath { get; private set; }
-
-        public MainWindow()
-        {
-            InitializeComponent();
-            Loaded += OnMainWindowLoaded;
-            Closing += OnMainWindowClosing;
-        }
-
+		
         private void OnMainWindowLoaded(object sender, RoutedEventArgs e)
         {
             Loaded -= OnMainWindowLoaded;
             GetEnginePath();
             OpenProjectBrowserDialog();
         }
-
+		
         private void GetEnginePath()
         {
             var enginePath = Environment.GetEnvironmentVariable("QUANTUM_ENGINE", EnvironmentVariableTarget.User);
@@ -50,7 +44,7 @@ namespace Editor
                 QuantumPath = enginePath;
             }
         }
-
+		
         private void OnMainWindowClosing(object? sender, CancelEventArgs e)
         {
             if (DataContext == null)
@@ -68,9 +62,10 @@ namespace Editor
                 Closing -= OnMainWindowClosing;
                 Project.Current?.Unload();
                 DataContext = null;
+				ContentToolsAPI.ShutDownContentTools();
             }
         }
-
+		
         private void OpenProjectBrowserDialog()
         {
             var projectBrowser = new ProjectBrowserDialog();
@@ -87,5 +82,12 @@ namespace Editor
                 DataContext = project;
             }
         }
-    }
+		
+		public MainWindow()
+		{
+			InitializeComponent();
+			Loaded += OnMainWindowLoaded;
+			Closing += OnMainWindowClosing;
+		}
+	}
 }

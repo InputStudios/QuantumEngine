@@ -14,13 +14,20 @@ namespace Editor.Content
     public partial class SaveDialog : Window
     {
         public string SaveFilePath { get; private set; }
-
+		
         public SaveDialog()
         {
             InitializeComponent();
-            Closing += OnSaveDialogClosing;
+			
+			contentBrowserView.Loaded += (_, _) =>
+			{
+				var contentBrowser = contentBrowserView.DataContext as ContentBrowser;
+				contentBrowser.SelectedFolder = contentBrowser.ContentFolder;
+			};
+			
+			Closing += OnSaveDialogClosing;
         }
-
+		
         private bool ValidateFileName(out string saveFilePath)
         {
             var contentBrowser = contentBrowserView.DataContext as ContentBrowser;
@@ -32,14 +39,13 @@ namespace Editor.Content
                 saveFilePath = string.Empty;
                 return false;
             }
-
-            if (!fileName.EndsWith(Asset.AssetFileExtension))
-                fileName += Asset.AssetFileExtension;
-
+			
+            if (!fileName.EndsWith(Asset.AssetFileExtension)) fileName += Asset.AssetFileExtension;
+			
             path += $@"{fileName}";
             var isValid = false;
             string errorMsg = string.Empty;
-
+			
             if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
             {
                 errorMsg = "Invalid character(s) used in asset file name.";
@@ -52,16 +58,16 @@ namespace Editor.Content
             {
                 isValid = true;
             }
-
+			
             if (!string.IsNullOrEmpty(errorMsg))
             {
                 MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
+			
             saveFilePath = path;
             return isValid;
         }
-
+		
         private void OnSave_Button_Click(object sender, RoutedEventArgs e)
         {
             if (ValidateFileName(out var saveFilePath))
@@ -71,7 +77,7 @@ namespace Editor.Content
                 Close();
             }
         }
-
+		
         private void OnContentBrowser_Mouse_Double_Click(object sender, MouseButtonEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement).DataContext == contentBrowserView.SelectedItem &&
@@ -80,7 +86,7 @@ namespace Editor.Content
                 OnSave_Button_Click(sender, null);
             }
         }
-
+		
         private void OnSaveDialogClosing(object? sender, CancelEventArgs e)
         {
             contentBrowserView.Dispose();

@@ -125,7 +125,7 @@ namespace {1} {{
             IsEnabled = false;
             busyAnimation.Opacity = 0;
             busyAnimation.Visibility = Visibility.Visible;
-            DoubleAnimation fadeIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(500)));
+            DoubleAnimation fadeIn = new(0, 1, new Duration(TimeSpan.FromMilliseconds(500)));
             busyAnimation.BeginAnimation(OpacityProperty, fadeIn);
 
             try
@@ -143,7 +143,7 @@ namespace {1} {{
             }
             finally
             {
-                DoubleAnimation fadeOut = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromMilliseconds(200)));
+                DoubleAnimation fadeOut = new(1, 0, new Duration(TimeSpan.FromMilliseconds(200)));
                 fadeOut.Completed += (s, e) =>
                 {
                     busyAnimation.Opacity = 0;

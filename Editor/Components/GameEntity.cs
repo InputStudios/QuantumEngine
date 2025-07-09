@@ -91,7 +91,7 @@ namespace Editor.Components
         public Scene ParentScene { get; private set; }
 
         [DataMember(Name = nameof(Components))]
-        private readonly ObservableCollection<Component> _components = new ObservableCollection<Component>();
+        private readonly ObservableCollection<Component> _components = new();
         public ReadOnlyObservableCollection<Component> Components { get; private set; }
         public Component GetComponent(Type type) => Components.FirstOrDefault(c => c.GetType() == type);
         public T GetComponent<T>() where T : Component => GetComponent(typeof(T)) as T;

@@ -37,7 +37,7 @@ namespace Editor.GameProject
     {
         private static readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\QuantumEditor\";
         private static readonly string _projectDataPath;
-        private static readonly ObservableCollection<ProjectData> _projects = new ObservableCollection<ProjectData>();
+        private static readonly ObservableCollection<ProjectData> _projects = new();
         public static ReadOnlyObservableCollection<ProjectData> Projects { get; }
 
         private static void ReadProjectData()

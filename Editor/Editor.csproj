@@ -36,6 +36,8 @@
     <None Remove="Resources\ContentBrowser\folderSmall.png" />
     <None Remove="Resources\ContentBrowser\ListView.png" />
     <None Remove="Resources\PrimitiveMeshView\Checkmap.png" />
+    <None Remove="Resources\TextureEditor\ChannelSelectShader.cso" />
+    <None Remove="Resources\TextureEditor\Checker64.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -49,6 +51,8 @@
 	  <Resource Include="Resources\ContentBrowser\ListView.png" />
 	  <Resource Include="Resources\PrimitiveMeshView\Checkmap.png" />
 	  <Resource Include="Resources\PrimitiveMeshView\PlaneTexture.png" />
+	  <Resource Include="Resources\TextureEditor\ChannelSelectShader.cso" />
+	  <Resource Include="Resources\TextureEditor\Checker64.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -77,6 +81,78 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Update="ProjectTemplates\EmptyProject\Icon.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\EmptyProject\MSVCProject">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\EmptyProject\MSVCSolution">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\EmptyProject\project.quantum">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\EmptyProject\Screenshot.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\EmptyProject\template.xml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\FirstPersonProject\Icon.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\FirstPersonProject\MSVCProject">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\FirstPersonProject\MSVCSolution">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\FirstPersonProject\project.quantum">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\FirstPersonProject\Screenshot.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\FirstPersonProject\template.xml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\ThirdPersonProject\Icon.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\ThirdPersonProject\MSVCProject">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\ThirdPersonProject\MSVCSolution">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\ThirdPersonProject\project.quantum">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\ThirdPersonProject\Screenshot.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\ThirdPersonProject\template.xml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\TopDownProject\Icon.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\TopDownProject\MSVCProject">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\TopDownProject\MSVCSolution">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\TopDownProject\project.quantum">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\TopDownProject\Screenshot.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ProjectTemplates\TopDownProject\template.xml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </None>
 	  <None Update="Properties\Settings.settings">
 	    <Generator>SettingsSingleFileGenerator</Generator>
 	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -85,11 +161,6 @@
 
 	<ItemGroup>
 	  <None Include="Resources\app_icon.ico" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Content\ImportSettingConfig\" />
-	  <Folder Include="Resources\TextureEditor\" />
 	</ItemGroup>
 
 </Project>

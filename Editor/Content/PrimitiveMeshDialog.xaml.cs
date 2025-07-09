@@ -21,7 +21,7 @@ namespace Editor.Content
     /// </summary>
     public partial class PrimitiveMeshDialog : Window
     {
-        private static readonly List<ImageBrush> _textures = new List<ImageBrush>();
+        private static readonly List<ImageBrush> _textures = new();
 
         private void OnPrimitiveType_ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdatePrimitive();
 
@@ -86,9 +86,9 @@ namespace Editor.Content
         {
             var uris = new List<Uri>
             {
-                new Uri("pack://application:,,,/Resources/PrimitiveMeshView/PlaneTextures.png"),
-                new Uri("pack://application:,,,/Resources/PrimitiveMeshView/PlaneTextures.png"),
-                new Uri("pack://application:,,,/Resources/PrimitiveMeshView/Checkmap.png"),
+                new("pack://application:,,,/Resources/PrimitiveMeshView/PlaneTextures.png"),
+                new("pack://application:,,,/Resources/PrimitiveMeshView/PlaneTextures.png"),
+                new("pack://application:,,,/Resources/PrimitiveMeshView/Checkmap.png"),
             };
 
             _textures.Clear();

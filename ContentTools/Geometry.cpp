@@ -6,35 +6,35 @@
 
 namespace Quantum::tools {
     namespace {
-
+	
         using namespace math;
         using namespace DirectX;
-
+		
         void recalculate_normals(mesh& m)
         {
             const u32 num_indices{ (u32)m.raw_indices.size() };
             m.normals.resize(num_indices);
-
+			
             for (u32 i{ 0 }; i < num_indices; ++i)
             {
                 const u32 i0{ m.raw_indices[i] };
                 const u32 i1{ m.raw_indices[++i] };
                 const u32 i2{ m.raw_indices[++i] };
-
+				
                 XMVECTOR v0{ XMLoadFloat3(&m.positions[i0]) };
                 XMVECTOR v1{ XMLoadFloat3(&m.positions[i1]) };
                 XMVECTOR v2{ XMLoadFloat3(&m.positions[i2]) };
-
+				
                 XMVECTOR e0{ v1 - v0 };
                 XMVECTOR e1{ v2 - v0 };
                 XMVECTOR n{ XMVector3Normalize(XMVector3Cross(e0, e1)) };
-
+				
                 XMStoreFloat3(&m.normals[i], n);
                 m.normals[i - 1] = m.normals[i];
                 m.normals[i - 2] = m.normals[i];
             }
         }
-
+		
         void process_normals(mesh& m, f32 smoothing_angle)
         {
             const f32 cos_alpha{ XMScalarCos(pi - smoothing_angle * pi / 180.f) };
@@ -43,13 +43,13 @@ namespace Quantum::tools {
             const u32 num_indices{ (u32)m.raw_indices.size() };
             const u32 num_vertices{ (u32)m.positions.size() };
             assert(num_indices && num_vertices);
-
+			
             m.indices.resize(num_indices);
-
+			
             util::vector<util::vector<u32>> idx_ref(num_vertices);
             for (u32 i{ 0 }; i < num_vertices; ++i)
                 idx_ref[m.raw_indices[i]].emplace_back(i);
-
+				
             for (u32 i{ 0 }; i < num_vertices; ++i)
             {
                 auto& refs{ idx_ref[i] };
@@ -59,7 +59,7 @@ namespace Quantum::tools {
                     m.indices[refs[j]] = (u32)m.vertices.size();
                     vertex& v{ m.vertices.emplace_back() };
                     v.position = m.positions[m.raw_indices[refs[j]]];
-
+					
                     XMVECTOR n1{ XMLoadFloat3(&m.normals[refs[j]]) };
                     if (!is_hard_edge)
                     {
@@ -76,11 +76,11 @@ namespace Quantum::tools {
                                 //       cos(angle) = dot(n1, n2) / (||n1||*||n2||)
                                 XMStoreFloat(&cos_theta, XMVector3Dot(n1, n2) * XMVector3ReciprocalLength(n1));
                             }
-
+							
                             if (is_soft_edge || cos_theta >= cos_alpha)
                             {
                                 n1 += n2;
-
+								
                                 m.indices[refs[k]] = m.indices[refs[j]];
                                 refs.erase(refs.begin() + k);
                                 --num_refs;
@@ -92,21 +92,21 @@ namespace Quantum::tools {
                 }
             }
         }
-
+		
         void process_uvs(mesh& m) {
             util::vector<vertex> old_vertices;
             old_vertices.swap(m.vertices);
             util::vector<u32> old_indices(m.indices.size());
             old_indices.swap(m.indices);
-
+			
             const u32 num_vertices{ (u32)old_vertices.size() };
             const u32 num_indices{ (u32)old_indices.size() };
             assert(num_vertices && num_indices);
-
+			
             util::vector<util::vector<u32>> idx_ref(num_vertices);
             for (u32 i{ 0 }; i < num_vertices; ++i)
                 idx_ref[old_indices[i]].emplace_back(i);
-
+			
             for (u32 i{ 0 }; i < num_vertices; ++i)
             {
                 auto& refs{ idx_ref[i] };
@@ -117,7 +117,7 @@ namespace Quantum::tools {
                     vertex& v{ old_vertices[old_indices[refs[j]]] };
                     v.uv = m.uv_sets[0][refs[j]];
                     m.vertices.emplace_back(v);
-
+					
                     for (u32 k{ j + 1 }; k < num_refs; ++k)
                     {
                         v2& uv1{ m.uv_sets[0][refs[k]] };
@@ -133,7 +133,7 @@ namespace Quantum::tools {
                 }
             }
         }
-
+		
         u64 get_vertex_element_size(elements::elements_type::type elements_type)
         {
             using namespace elements;
@@ -149,31 +149,31 @@ namespace Quantum::tools {
                 case elements_type::skeletal_normal_texture:                return sizeof(skeletal_normal_texture);
                 case elements_type::skeletal_normal_texture_color:          return sizeof(skeletal_normal_texture_color);
             }
-
+			
             return 0;
         }
-
+		
         void pack_vertices(mesh& m)
         {
             const u32 num_vertices{ (u32)m.vertices.size() };
             assert(num_vertices);
-
+			
             m.position_buffer.resize(sizeof(math::v3) * num_vertices);
             math::v3* const position_buffer{ (math::v3* const)m.position_buffer.data() };
-
+			
             for (u32 i{ 0 }; i < num_vertices; ++i)
             {
                 position_buffer[i] = m.vertices[i].position;
             }
-
+			
             struct u16v2 { u16 x, y; };
             struct u8v3 { u8 x, y, z; };
-
+			
             util::vector<u8>        t_signs(num_vertices);
             util::vector<u16v2>     normals(num_vertices);
             util::vector<u16v2>     tangents(num_vertices);
-            util::vector<u8v3>      joint_weights(num_vertices);
-
+			util::vector<u8v3>      joint_weights(num_vertices);
+			
             if (m.elements_type & elements::elements_type::static_normal)
             {
                 // normal only
@@ -183,7 +183,7 @@ namespace Quantum::tools {
                     t_signs[i] = (u8)((v.normal.z > 0.f) << 1);
                     normals[i] = { (u16)pack_float<16>(v.normal.x, -1.f, 1.f), (u16)pack_float<16>(v.normal.y, -1.f, 1.f) };
                 }
-
+				
                 if (m.elements_type & elements::elements_type::static_normal_texture)
                 {
                     // full T-trace
@@ -195,7 +195,7 @@ namespace Quantum::tools {
                     }
                 }
             }
-
+			
             if (m.elements_type & elements::elements_type::skeletal)
             {
                 for (u32 i{ 0 }; i < num_vertices; ++i)
@@ -206,13 +206,13 @@ namespace Quantum::tools {
                         (u8)pack_unit_float<8>(v.joint_weights.x),
                         (u8)pack_unit_float<8>(v.joint_weights.y),
                         (u8)pack_unit_float<8>(v.joint_weights.z) };
-
+						
                     // NOTE: w3 will be calculated in shader since joint weights sum to one(1).
                     }
                 }
             m.element_buffer.resize(get_vertex_element_size(m.elements_type)* num_vertices);
             using namespace elements;
-
+			
             switch (m.elements_type)
             {
             case elements_type::static_color:
@@ -324,29 +324,31 @@ namespace Quantum::tools {
             break;
             }
         }
-
-        void determine_elements_type(mesh& m)
+		
+		elements::elements_type::type determine_elements_type(const mesh& m)
         {
             using namespace elements;
+			elements_type::type type{};
             if (m.normals.size())
             {
                 if (m.uv_sets.size() && m.uv_sets[0].size())
                 {
-                    m.elements_type = elements_type::static_normal_texture;
+					type = elements_type::static_normal_texture;
                 }
                 else
                 {
-                    m.elements_type = elements_type::static_normal;
+					type = elements_type::static_normal;
                 }
             }
             else if (m.colors.size())
             {
-                m.elements_type = elements_type::static_color;
+				type = elements_type::static_color;
             }
-
+			
             // TODO: we lack data for skeletal meshes. Expand for skeletal meshes later.
+			return type;
         }
-
+		
         void process_vertices(mesh& m, const geometry_import_settings& settings)
         {
             assert((m.raw_indices.size() % 3) == 0);
@@ -354,19 +356,18 @@ namespace Quantum::tools {
             {
                 recalculate_normals(m);
             }
-
+			
             process_normals(m, settings.smothing_angle);
-
+			
             if (!m.uv_sets.empty())
             {
                 process_uvs(m);
             }
-
-            determine_elements_type(m);
+			
+            m.elements_type = determine_elements_type(m);
             pack_vertices(m);
-        } 
-
-
+        }
+		
         u64 get_mesh_size(const mesh& m)
         {
             const u64 num_vertices{ m.vertices.size() };
@@ -390,10 +391,10 @@ namespace Quantum::tools {
                 element_buffer_size + // room for vertex elements
                 index_buffer_size // room for indices
             };
-
+			
             return size;
         }
-
+		
         u64 get_scene_size(const scene& scene)
         {
             constexpr u64 su32{ sizeof(u32) };
@@ -403,26 +404,26 @@ namespace Quantum::tools {
                 scene.name.size() +    // room for scene name string
                 su32                   // number of LODs
             };
-
-            for (auto& lod : scene.lod_groups)
+			
+            for (const auto& lod : scene.lod_groups)
             {
                 u64 lod_size
                 {
                     su32 + lod.name.size() +    // LOD name length and room for LPD name string
                     su32                        // number of meshes in this LOD
                 };
-
-                for (auto& m : lod.meshes)
+				
+                for (const auto& m : lod.meshes)
                 {
                     lod_size += get_mesh_size(m);
                 }
-
+				
                 size += lod_size;
             }
-
+			
             return size;
         }
-
+		
         void pack_mesh_data(const mesh& m, util::blob_stream_writer& blob)
         {
             // mesh name
@@ -456,7 +457,7 @@ namespace Quantum::tools {
             const u32 index_buffer_size{ index_size * num_indices };
             const u8* data{ (const u8*)m.indices.data() };
             util::vector<u16> indices;
-
+			
             if (index_size == sizeof(u16))
             {
                 indices.resize(num_indices);
@@ -465,130 +466,209 @@ namespace Quantum::tools {
             }
             blob.write(data, index_buffer_size);
         }
-
-    } // anonymous namespace
-
-    bool split_meshes_by_material(u32 material_idx, const mesh& m, mesh& submesh)
+		
+		bool split_meshes_by_material(u32 material_idx, const mesh& m, mesh& submesh)
+		{
+			submesh.name = m.name;
+			submesh.lod_threshold = m.lod_threshold;
+			submesh.lod_id = m.lod_id;
+			submesh.material_used.emplace_back(material_idx);
+			submesh.uv_sets.resize(m.uv_sets.size());
+			
+			const u32 num_polys{ (u32)m.raw_indices.size() / 3 };
+			util::vector<u32> vertex_ref(m.positions.size(), u32_invalid_id);
+			
+			for (u32 i{ 0 }; i < num_polys; ++i)
+			{
+				const u32 mtl_idx{ m.material_indices[i] };
+				if (mtl_idx != material_idx) continue;
+				
+				const u32 index{ i + 3 };
+				for (u32 j = index; j < index + 3; ++j)
+				{
+					const u32 v_idx{ m.raw_indices[j] };
+					if (vertex_ref[v_idx] != u32_invalid_id)
+					{
+						submesh.raw_indices.emplace_back(vertex_ref[v_idx]);
+					}
+					else
+					{
+						submesh.raw_indices.emplace_back((u32)submesh.positions.size());
+						vertex_ref[v_idx] = submesh.raw_indices.back();
+						submesh.positions.emplace_back(m.positions[v_idx]);
+					}
+					
+					if (m.normals.size())
+					{
+						submesh.normals.emplace_back(m.normals[j]);
+					}
+					
+					if (m.tangents.size())
+					{
+						submesh.tangents.emplace_back(m.tangents[j]);
+					}
+					
+					for (u32 k{ 0 }; k < m.uv_sets.size(); ++k)
+					{
+						if (m.uv_sets[k].size())
+						{
+							submesh.uv_sets[k].emplace_back(m.uv_sets[k][j]);
+						}
+					}
+				}
+			}
+			
+			assert((submesh.raw_indices.size() % 3) == 0);
+			return !submesh.raw_indices.empty();
+		}
+		
+		void split_meshes_by_material(scene& scene, progression *const progression)
+		{
+			assert(progression);
+			progression->callback(0, 0);
+			
+			for (auto& lod : scene.lod_groups)
+			{
+				util::vector<mesh> new_meshes;
+				
+				for (const auto& m : lod.meshes)
+				{
+					// If more than one material is used in this mesh
+					// then split it into submeshes.
+					const u32 num_materials{ (u32)m.material_used.size() };
+					if (num_materials > 1)
+					{
+						for (u32 i{ 0 }; i < num_materials; ++i)
+						{
+							mesh submesh{};
+							if (split_meshes_by_material(m.material_used[i], m, submesh))
+							{
+								new_meshes.emplace_back(submesh);
+							}
+						}
+					}
+					else
+					{
+						new_meshes.emplace_back(m);
+					}
+				}
+				
+				new_meshes.swap(lod.meshes);
+				progression->callback(progression->value(), progression->max_value() + (u32)new_meshes.size());
+			}
+		}
+		
+		template <typename T> void append_to_vector_pod(util::vector<T>& dst, const util::vector<T>& src)
+		{
+			if (src.empty()) return;
+			const u32 num_elements{ (u32)dst.size() };
+			dst.resize(dst.size() + src.size());
+			memcpy(&dst[num_elements], src.data(), src.size() * sizeof(T));
+		}
+    } // anonymous namespace  
+	
+    void process_scene(scene& scene, const geometry_import_settings& settings, progression *const progression)
     {
-        submesh.name = m.name;
-        submesh.lod_threshold = m.lod_threshold;
-        submesh.lod_id = m.lod_id;
-        submesh.material_used.emplace_back(material_idx);
-        submesh.uv_sets.resize(m.uv_sets.size());
-
-        const u32 num_polys{ (u32)m.raw_indices.size() / 3 };
-        util::vector<u32> vertex_ref(m.positions.size(), u32_invalid_id);
-
-        for (u32 i{ 0 }; i < num_polys; ++i)
-        {
-            const u32 mtl_idx{ m.material_indices[i] };
-            if (mtl_idx != material_idx) continue;
-
-            const u32 index{ i + 3 };
-            for (u32 j = index; j < index + 3; ++j)
-            {
-                const u32 v_idx{ m.raw_indices[j] };
-                if (vertex_ref[v_idx] != u32_invalid_id)
-                {
-                    submesh.raw_indices.emplace_back((u32)submesh.positions.size());
-                    vertex_ref[v_idx] = submesh.raw_indices.back();
-                    submesh.positions.emplace_back(m.positions[v_idx]);
-                }
-
-                if (m.normals.size())
-                {
-                    submesh.normals.emplace_back(m.normals[j]);
-                }
-
-                if (m.tangents.size())
-                {
-                    submesh.tangents.emplace_back(m.tangents[j]);
-                }
-
-                for (u32 k{ 0 }; k < m.uv_sets.size(); ++k)
-                {
-                    if (m.uv_sets[k].size())
-                    {
-                        submesh.uv_sets[k].emplace_back(m.uv_sets[k][j]);
-                    }
-                }
-            }
-        }
-
-        assert((submesh.raw_indices.size() % 3) == 0);
-        return !submesh.raw_indices.empty();
-    }
-
-    void split_meshes_by_material(scene& scene)
-    {
-        for (auto& lod : scene.lod_groups)
-        {
-            util::vector<mesh> new_meshes;
-
-            for (auto& m : lod.meshes)
-            {
-                // If more than one material is used in this mesh
-                // then split it into submeshes.
-                const u32 num_materials{ (u32)m.material_used.size() };
-                if (num_materials > 1)
-                {
-                    for (u32 i{ 0 }; i < num_materials; ++i)
-                    {
-                        mesh submesh{};
-                        if (split_meshes_by_material(m.material_used[i], m, submesh))
-                        {
-                            new_meshes.emplace_back(submesh);
-                        }
-                    }
-                }
-                else
-                {
-                    new_meshes.emplace_back(m);
-                }
-            }
-
-            new_meshes.swap(lod.meshes);
-        }
-    }
-
-    void process_scene(scene& scene, const geometry_import_settings& settings)
-    {
-        split_meshes_by_material(scene);
-
+		assert(progression);
+		split_meshes_by_material(scene, progression);
+		
         for (auto& lod : scene.lod_groups)
             for (auto& m : lod.meshes)
             {
                 process_vertices(m, settings);
+				progression->callback(progression->value() + 1, progression->max_value());
             }
     }
-
+	
     void pack_data(const scene& scene, scene_data& data)
     {
         const u64 scene_size{ get_scene_size(scene) };
         data.buffer_size = (u32)scene_size;
         data.buffer = (u8*)CoTaskMemAlloc(scene_size);
         assert(data.buffer);
-
+		
         util::blob_stream_writer blob{ data.buffer, data.buffer_size };
-
+		
         // scene name
         blob.write((u32)scene.name.size());
         blob.write(scene.name.c_str(), scene.name.size());
         // number of LODs
         blob.write((u32)scene.lod_groups.size());
-
-        for (auto& lod : scene.lod_groups)
+		
+        for (const auto& lod : scene.lod_groups)
         {
             // LOD name
             blob.write((u32)lod.name.size());
             blob.write(lod.name.c_str(), lod.name.size());
             // number of meshes in this LOD
             blob.write((u32)lod.meshes.size());
-
-            for (auto& m : lod.meshes)
+			
+            for (const auto& m : lod.meshes)
             {
                 pack_mesh_data(m, blob);
             }
         }
+		
+		assert(scene_size == blob.offset());
     }
+	
+	bool coalesce_meshes(const lod_group& lod, mesh& combined_mesh, progression* const progression)
+	{
+		assert(lod.meshes.size());
+		const mesh& first_mesh{ lod.meshes[0] };
+		combined_mesh.name = first_mesh.name;
+		combined_mesh.elements_type = determine_elements_type(lod.meshes[0]);
+		combined_mesh.lod_threshold = first_mesh.lod_threshold;
+		combined_mesh.lod_id = first_mesh.lod_id;
+		combined_mesh.uv_sets.resize(first_mesh.uv_sets.size());
+
+		for (u32 mesh_idx{ 0 }; mesh_idx < lod.meshes.size(); ++mesh_idx)
+		{
+			const mesh& m{ lod.meshes[mesh_idx] };
+
+			if (combined_mesh.elements_type != determine_elements_type(m) || combined_mesh.uv_sets.size() != m.uv_sets.size() || combined_mesh.lod_id != m.lod_id || !math::is_equal(combined_mesh.lod_threshold, m.lod_threshold))
+			{
+				combined_mesh = {};
+				return false;
+			}
+		}
+
+		for (u32 mesh_idx{ 0 }; mesh_idx < lod.meshes.size(); ++mesh_idx)
+		{
+			const mesh& m{ lod.meshes[mesh_idx] };
+			
+			const u32 position_count{ (u32)combined_mesh.positions.size() };
+			const u32 raw_index_base{ (u32)combined_mesh.raw_indices.size() };
+			
+			append_to_vector_pod(combined_mesh.positions, m.positions);
+			append_to_vector_pod(combined_mesh.normals, m.normals);
+			append_to_vector_pod(combined_mesh.tangents, m.tangents);
+			append_to_vector_pod(combined_mesh.colors, m.colors);
+			
+			for (u32 i{ 0 }; i < combined_mesh.uv_sets.size(); ++i)
+			{
+				append_to_vector_pod(combined_mesh.uv_sets[i], m.uv_sets[i]);
+			}
+			
+			append_to_vector_pod(combined_mesh.material_indices, m.material_indices);
+			append_to_vector_pod(combined_mesh.raw_indices, m.raw_indices);
+			
+			for (u32 i{ raw_index_base }; i < combined_mesh.raw_indices.size(); ++i)
+			{
+				combined_mesh.raw_indices[i] += position_count;
+			}
+			
+			progression->callback(progression->value(), progression->max_value() > 1 ? progression->max_value() - 1 : 1);
+		}
+		
+		for (const u32 mtl_idx : combined_mesh.material_indices)
+		{
+			if (std::find(combined_mesh.material_used.begin(), combined_mesh.material_used.end(), mtl_idx) == combined_mesh.material_used.end())
+			{
+				combined_mesh.material_used.emplace_back(mtl_idx);
+			}
+		}
+		
+		return true;
+	}
 }

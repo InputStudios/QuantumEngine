@@ -9,10 +9,11 @@
 #if USE_STL_VECTOR
 
 #include <vector>
-namespace Quantum::util {
+namespace Quantum::util
+{
     template<typename T>
     using vector = std::vector<T>;
-
+	
     template<typename T>
     void erase_unordered(T& v, size_t index)
     {
@@ -38,7 +39,8 @@ namespace Quantum::util {
 
 #if USE_STL_DEQUE
 #include <deque>
-namespace Quantum::util {
+namespace Quantum::util
+{
 	template<typename T>
 	using deque = std::deque<T>;
 }

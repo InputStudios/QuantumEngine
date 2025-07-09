@@ -12,7 +12,8 @@ using namespace Microsoft::WRL;
 namespace Quantum::tools {
 	bool is_normal_map(const Image* const image);
 	
-	namespace {
+	namespace
+	{
 		struct import_error {
 			enum error_code : u32 {
 				succeeded = 0,
@@ -20,16 +21,19 @@ namespace Quantum::tools {
 				compress,
 				decompress,
 				load,
-				mipmap_gemeration,
+				mipmap_generation,
 				max_size_exceeded,
 				size_mismatch,
 				format_mismatch,
 				file_not_found,
+				need_six_images,
 			};
 		};
 		
-		struct texture_dimmension {
-			enum dimmension : u32 {
+		struct texture_dimension
+		{
+			enum dimmension : u32
+			{
 				texture_1d,
 				texture_2d,
 				texture_3d,
@@ -37,18 +41,20 @@ namespace Quantum::tools {
 			};
 		};
 		
-		struct texture_import_settings {
-			char*	sources;			// string of one or more file paths separeted by semi-colons ';'
+		struct texture_import_settings
+		{
+			char*	sources;			// string of one or more file paths separated by semi-colons ';'
 			u32     source_count;		// number of file paths 
-			u32     dimmension;
+			u32     dimension;
 			u32     mip_levels;
 			f32     alpha_threshold;
-			u32     preffer_bc7;
+			u32     prefer_bc7;
 			u32     output_format;
 			u32     compress;
 		};
 		
-		struct texture_info {
+		struct texture_info
+		{
 			u32		width;
 			u32		height;
 			u32		array_size;
@@ -58,7 +64,8 @@ namespace Quantum::tools {
 			u32		flags;
 		};
 		
-		struct texture_data {
+		struct texture_data
+		{
 			constexpr static u32        max_mips{ 14 };     // we support up to 8k textures.
 			u8*							subresource_data;
 			u32                         subresource_size;
@@ -76,26 +83,31 @@ namespace Quantum::tools {
 		std::mutex						device_creation_mutex;
 		util::vector<d3d11_device>		d3d11_devices;
 		
-		util::vector<ComPtr<IDXGIAdapter>> get_adapters_by_performance() {
-			using PFN_CreateDXGIFactory1 = HRESULT(WINAPI*)(REFIID, void**);
-			static PFN_CreateDXGIFactory1 create_dxgi_factory1{ nullptr };
-			if (!create_dxgi_factory1) {
-				HMODULE dxgi_module{ LoadLibrary(L"dxgi.dll") };
+		HMODULE dxgi_module{ nullptr };
+		HMODULE d3d11_module{ nullptr };
+		
+		util::vector<ComPtr<IDXGIAdapter>> get_adapters_by_performance()
+		{
+			if (!dxgi_module)
+			{
+				dxgi_module = LoadLibrary(L"dxgi.dll");
 				if (!dxgi_module) return {};
-				
-				create_dxgi_factory1 = (PFN_CreateDXGIFactory1)((void*)GetProcAddress(dxgi_module, "CreateDXGIFactory1"));
-				if (!create_dxgi_factory1) return {};
 			}
+			
+			using PFN_CreateDXGIFactory1 = HRESULT(WINAPI*)(REFIID, void**);
+			const PFN_CreateDXGIFactory1 create_dxgi_factory1{ (PFN_CreateDXGIFactory1)((void*)GetProcAddress(dxgi_module, "CreateDXGIFactory1")) };
+			if (!create_dxgi_factory1) return {};
 			
 			ComPtr<IDXGIFactory7> factory;
 			util::vector<ComPtr<IDXGIAdapter>> adapters;
 			
-			if (SUCCEEDED(create_dxgi_factory1(IID_PPV_ARGS(factory.GetAddressOf())))) {
-				
+			if (SUCCEEDED(create_dxgi_factory1(IID_PPV_ARGS(factory.GetAddressOf()))))
+			{
 				constexpr u32 warp_id{ 0x1414 };
 				
 				ComPtr<IDXGIAdapter> adapter;
-				for (u32 i{ 0 }; factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(adapter.GetAddressOf())) != DXGI_ERROR_NOT_FOUND; ++i) {
+				for (u32 i{ 0 }; factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(adapter.GetAddressOf())) != DXGI_ERROR_NOT_FOUND; ++i)
+				{
 					if (!adapter) continue;
 					
 					DXGI_ADAPTER_DESC desc;
@@ -110,29 +122,30 @@ namespace Quantum::tools {
 			return adapters;
 		}
 		
-		void create_device() {
+		void create_device()
+		{
 			if (d3d11_devices.size()) return;
 			
-			util::vector<ComPtr<IDXGIAdapter>> adapters{ get_adapters_by_performance() };
-			
-			static PFN_D3D11_CREATE_DEVICE d3d11_create_device{ nullptr };
-			if (!d3d11_create_device) {
-				HMODULE d3d11_module{ LoadLibrary(L"d3d11.dll") };
+			if (!d3d11_module)
+			{
+				d3d11_module = LoadLibrary(L"d3d11.dll");
 				if (!d3d11_module) return;
-				
-				d3d11_create_device = (PFN_D3D11_CREATE_DEVICE)((void*)GetProcAddress(d3d11_module, "D3D11CreateDevice"));
-				if (!d3d11_create_device) return;
 			}
+			
+			const PFN_D3D11_CREATE_DEVICE d3d11_create_device{ (PFN_D3D11_CREATE_DEVICE)((void*)GetProcAddress(d3d11_module, "D3D11CreateDevice")) };
+			if (!d3d11_create_device) return;
 			
 			u32 create_device_flags{ 0 };
 #ifdef  _DEBUG
 			create_device_flags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif		
+#endif
 			
+			util::vector<ComPtr<IDXGIAdapter>> adapters{ get_adapters_by_performance() };
 			util::vector<ComPtr<ID3D11Device>> devices(adapters.size(), nullptr);
 			constexpr D3D_FEATURE_LEVEL feature_levels[]{ D3D_FEATURE_LEVEL_11_0 };
 			
-			for (u32 i{ 0 }; i < adapters.size(); ++i) {
+			for (u32 i{ 0 }; i < adapters.size(); ++i)
+			{
 				ID3D11Device** device{ &devices[i] };
 				D3D_FEATURE_LEVEL feature_level;
 				[[maybe_unused]]
@@ -142,8 +155,9 @@ namespace Quantum::tools {
 				assert(SUCCEEDED(hr));
 			}
 			
-			for (u32 i{ 0 }; i < devices.size(); ++i) {
-				// NOTE: we check for valid devices since device creationg can fail for adapters that don't support
+			for (u32 i{ 0 }; i < devices.size(); ++i)
+			{
+				// NOTE: we check for valid devices since device creating can fail for adapters that don't support
 				//		 the requested feature level (D3D_FEATURE_LEVEL_11_0).
 				if (devices[i]) {
 					d3d11_devices.emplace_back();
@@ -152,13 +166,16 @@ namespace Quantum::tools {
 			}
 		}
 		
-		constexpr void set_or_clear_flag(u32& flags, u32 flag, bool set) {
+		constexpr void set_or_clear_flag(u32& flags, u32 flag, bool set)
+		{
 			if (set) flags |= flag; else flags &= ~flag;
 		}
 		
-		constexpr u32 get_max_mip_count(u32 width, u32 height, u32 depth) {
+		constexpr u32 get_max_mip_count(u32 width, u32 height, u32 depth)
+		{
 			u32 mip_levels{ 1 };
-			while (width > 1 || height > 1 || depth > 1) {
+			while (width > 1 || height > 1 || depth > 1)
+			{
 				width >>= 1;
 				height >>= 1;
 				depth >>= 1;
@@ -169,7 +186,8 @@ namespace Quantum::tools {
 			return mip_levels;
 		}
 		
-		void texture_info_from_metadata(const TexMetadata& metadata, texture_info& info) {
+		void texture_info_from_metadata(const TexMetadata& metadata, texture_info& info)
+		{
 			using namespace Quantum::content;
 			const DXGI_FORMAT format{ metadata.format };
 			info.format = format;
@@ -182,9 +200,11 @@ namespace Quantum::tools {
 			set_or_clear_flag(info.flags, texture_flags::is_premultiplied_alpha, metadata.IsPMAlpha());
 			set_or_clear_flag(info.flags, texture_flags::is_cube_map, metadata.IsCubemap());
 			set_or_clear_flag(info.flags, texture_flags::is_volume_map, metadata.IsVolumemap());
+			set_or_clear_flag(info.flags, texture_flags::is_srgb, IsSRGB(format));
 		}
 		
-		void copy_subresources(const ScratchImage& scratch, texture_data *const data) {
+		void copy_subresources(const ScratchImage& scratch, texture_data *const data)
+		{
 			const TexMetadata& metadata{ scratch.GetMetadata() };
 			const Image *const images{ scratch.GetImages() };
 			const u32 image_count{ (u32)scratch.GetImageCount() };
@@ -192,12 +212,14 @@ namespace Quantum::tools {
 			
 			u64 subresources_size{ 0 };
 			
-			for (u32 i{ 0 }; i < image_count; ++i) {
+			for (u32 i{ 0 }; i < image_count; ++i)
+			{
 				// 4 x u32 for width, height, rowPitch, slicePitch
 				subresources_size += sizeof(u32) * 4 + images[i].slicePitch;
 			}
 			
-			if (subresources_size > ~(u32)0) {
+			if (subresources_size > ~(u32)0)
+			{
 				// Support up to 4GB per resources.
 				data->info.import_error = import_error::max_size_exceeded;
 				return;
@@ -209,7 +231,8 @@ namespace Quantum::tools {
 			
 			util::blob_stream_writer blob{ data->subresource_data, data->subresource_size };
 			
-			for (u32 i{ 0 }; i < image_count; ++i) {
+			for (u32 i{ 0 }; i < image_count; ++i)
+			{
 				const Image& image{ images[i] };
 				blob.write((u32)image.width);
 				blob.write((u32)image.height);
@@ -219,9 +242,11 @@ namespace Quantum::tools {
 			}
 		}
 		
-		void copy_icon(const Image& bc_image, texture_data *const data) {
+		void copy_icon(const Image& bc_image, texture_data *const data)
+		{
 			ScratchImage scratch;
-			if (FAILED(Decompress(bc_image, DXGI_FORMAT_UNKNOWN, scratch))) {
+			if (FAILED(Decompress(bc_image, DXGI_FORMAT_UNKNOWN, scratch)))
+			{
 				return;
 			}
 			
@@ -241,7 +266,8 @@ namespace Quantum::tools {
 			blob.write(image.pixels, image.slicePitch);
 		}
 		
-		[[nodiscard]] util::vector<Image> subresources_data_to_images(texture_data* const data) {
+		[[nodiscard]] util::vector<Image> subresources_data_to_images(texture_data* const data)
+		{
 			assert(data && data->subresource_data && data->subresource_size);
 			assert(data->info.mip_levels && data->info.mip_levels <= texture_data::max_mips);
 			assert(data->info.array_size);
@@ -249,14 +275,16 @@ namespace Quantum::tools {
 			const texture_info& info{ data->info };
 			u32 image_count{ info.array_size };
 			
-			if (info.flags & content::texture_flags::is_volume_map) {
+			if (info.flags & content::texture_flags::is_volume_map)
+			{
 				u32 depth_per_mip_level{ info.array_size };
 				for (u32 i{ 1 }; i < info.mip_levels; ++i) {
 					depth_per_mip_level = std::max(depth_per_mip_level >> 1, (u32)1);
 					image_count += depth_per_mip_level;
 				}
 			}
-			else {
+			else
+			{
 				image_count *= info.mip_levels;
 			
 			}
@@ -264,7 +292,8 @@ namespace Quantum::tools {
 			util::blob_stream_reader blob{ data->subresource_data };
 			util::vector<Image> images(image_count);
 			
-			for (u32 i{ 0 }; i < image_count; ++i) {
+			for (u32 i{ 0 }; i < image_count; ++i)
+			{
 				Image image{};
 				image.width = blob.read<u32>();
 				image.height = blob.read<u32>();
@@ -281,11 +310,13 @@ namespace Quantum::tools {
 			return images;
 		}
 		
-		[[nodiscard]] ScratchImage load_from_file(texture_data* const data, const char* file_name) {
+		[[nodiscard]] ScratchImage load_from_file(texture_data* const data, const char* file_name)
+		{
 			using namespace Quantum::content;
 			assert(file_exists(file_name));
 			
-			if (!file_exists(file_name)) {
+			if (!file_exists(file_name))
+			{
 				data->info.import_error = import_error::file_not_found;
 				return {};
 			}
@@ -295,7 +326,8 @@ namespace Quantum::tools {
 			WIC_FLAGS wic_flags{ WIC_FLAGS_NONE };
 			TGA_FLAGS tga_flags{ TGA_FLAGS_NONE };
 			
-			if (data->import_settings.output_format == DXGI_FORMAT_BC4_UNORM || data->import_settings.output_format == DXGI_FORMAT_BC5_UNORM) {
+			if (data->import_settings.output_format == DXGI_FORMAT_BC4_UNORM || data->import_settings.output_format == DXGI_FORMAT_BC5_UNORM)
+			{
 				wic_flags |= WIC_FLAGS_IGNORE_SRGB;
 				tga_flags |= TGA_FLAGS_IGNORE_SRGB;
 			}
@@ -309,20 +341,24 @@ namespace Quantum::tools {
 			HRESULT hr{ LoadFromWICFile(file, wic_flags, nullptr, scratch) };
 			
 			// It wasn't a WIC format. Try TGA.
-			if (FAILED(hr)) {
+			if (FAILED(hr))
+			{
 				hr = LoadFromTGAFile(file, tga_flags, nullptr, scratch);
 			}
 			
 			// It wasn't a TGA either. Try HDR.
-			if (FAILED(hr)) {
+			if (FAILED(hr))
+			{
 				hr = LoadFromTGAFile(file, nullptr, scratch);
 				if (SUCCEEDED(hr)) data->info.flags |= texture_flags::is_hdr;
 			}
 			
 			// It wasn't HDR. Try DDS.
-			if (FAILED(hr)) {
+			if (FAILED(hr))
+			{
 				hr = LoadFromDDSFile(file, DDS_FLAGS_FORCE_RGB, nullptr, scratch);
-				if (SUCCEEDED(hr)) {
+				if (SUCCEEDED(hr))
+				{
 					data->info.import_error |= import_error::decompress;
 					ScratchImage mip_scratch;
 					hr = Decompress(scratch.GetImages(), scratch.GetImageCount(), scratch.GetMetadata(), DXGI_FORMAT_UNKNOWN, mip_scratch);
@@ -333,7 +369,8 @@ namespace Quantum::tools {
 				} 
 			}
 			
-			if (SUCCEEDED(hr)) {
+			if (SUCCEEDED(hr))
+			{
 				data->info.import_error = import_error::succeeded;
 			}
 			
@@ -351,21 +388,30 @@ namespace Quantum::tools {
 			{ // Scope for working scratch
 				ScratchImage working_scratch{};
 				
-				if (settings.dimmension == texture_dimmension::texture_1d || settings.dimmension == texture_dimmension::texture_2d) {
-					const bool allow_1d{ settings.dimmension == texture_dimmension::texture_1d };
+				if (settings.dimension == texture_dimension::texture_1d || settings.dimension == texture_dimension::texture_2d)
+				{
+					const bool allow_1d{ settings.dimension == texture_dimension::texture_1d };
 					assert(array_size >= 1 && images.size() >= 1);
 					hr = working_scratch.InitializeArrayFromImages(images.data(), images.size(), allow_1d);
 				}
-				else if (settings.dimmension == texture_dimmension::texture_cube) {
-					assert((array_size % 6) == 0);
+				else if (settings.dimension == texture_dimension::texture_cube)
+				{
+					if (array_size % 6)
+					{
+						data->info.import_error = import_error::need_six_images;
+						return {};
+					}
+					
 					hr = working_scratch.InitializeCubeFromImages(images.data(), images.size());
 				}
-				else {
-					assert(settings.dimmension == texture_dimmension::texture_3d);
+				else
+				{
+					assert(settings.dimension == texture_dimension::texture_3d);
 					hr = working_scratch.Initialize3DFromImages(images.data(), images.size());
 				}
 				
-				if (FAILED(hr)) {
+				if (FAILED(hr))
+				{
 					data->info.import_error = import_error::unknown;
 					return {};
 				}
@@ -378,15 +424,18 @@ namespace Quantum::tools {
 				const TexMetadata& metadata{ scratch.GetMetadata() };
 				u32 mip_levels{ math::clamp(settings.mip_levels, (u32)0, get_max_mip_count((u32)metadata.width, (u32)metadata.height,(u32)metadata.depth)) };
 				
-				if (settings.dimmension != texture_dimmension::texture_3d) {
+				if (settings.dimension != texture_dimension::texture_3d)
+				{
 					hr = GenerateMipMaps(scratch.GetImages(), scratch.GetImageCount(), scratch.GetMetadata(), TEX_FILTER_DEFAULT, mip_levels, mip_scratch);
 				}
-				else {
+				else
+				{
 					hr = GenerateMipMaps3D(scratch.GetImages(), scratch.GetImageCount(), scratch.GetMetadata(), TEX_FILTER_DEFAULT, mip_levels, mip_scratch);
 				}
 				
-				if (FAILED(hr)) {
-					data->info.import_error = import_error::mipmap_gemeration;
+				if (FAILED(hr))
+				{
+					data->info.import_error = import_error::mipmap_generation;
 					return {};
 				}
 				
@@ -396,38 +445,45 @@ namespace Quantum::tools {
 			return scratch;
 		}
 		
-		DXGI_FORMAT determine_output_format(texture_data *const data, ScratchImage& scratch, const Image* const image) {
-			assert(data && -> import_settings.compress);
+		DXGI_FORMAT determine_output_format(texture_data *const data, ScratchImage& scratch, const Image* const image)
+		{
+			assert(data && data->import_settings.compress);
 			using namespace Quantum::content;
 			const DXGI_FORMAT image_format{ image->format };
 			DXGI_FORMAT output_format{ (DXGI_FORMAT)data->import_settings.output_format };
 			
-			// Detemine the bset block compressed format if import settings
+			// Determine the set block compressed format if import settings
 			// don't explicity a format.
-			if (output_format != DXGI_FORMAT_UNKNOWN) {
+			if (output_format != DXGI_FORMAT_UNKNOWN)
+			{
 				goto _done;
 			}
 			
-			if ((data->info.flags & texture_flags::is_hdr) || image_format == DXGI_FORMAT_BC6H_UF16 || image_format == DXGI_FORMAT_BC6H_SF16) {
+			if ((data->info.flags & texture_flags::is_hdr) || image_format == DXGI_FORMAT_BC6H_UF16 || image_format == DXGI_FORMAT_BC6H_SF16)
+			{
 				output_format + DXGI_FORMAT_BC3_UNORM;
 			}
 			// If the source image is gray scale or a single channel block compressed format (BC4),
 			// then output format will be BC4.
-			else if (image_format == DXGI_FORMAT_R8_UNORM || image_format == DXGI_FORMAT_BC4_UNORM || image_format == DXGI_FORMAT_BC4_SNORM) {
+			else if (image_format == DXGI_FORMAT_R8_UNORM || image_format == DXGI_FORMAT_BC4_UNORM || image_format == DXGI_FORMAT_BC4_SNORM)
+			{
 				output_format = DXGI_FORMAT_BC4_UNORM;
 			}
 			// Test if the sourve image is a normal map and if so, use BC5 format for the output.
-			else if (is_normal_map(image) || image_format == DXGI_FORMAT_BC5_UNORM || image_format == DXGI_FORMAT_BC5_SNORM) {
+			else if (is_normal_map(image) || image_format == DXGI_FORMAT_BC5_UNORM || image_format == DXGI_FORMAT_BC5_SNORM)
+			{
 				data->info.flags != texture_flags::is_imported_as_normal_map;
 				output_format = DXGI_FORMAT_BC5_UNORM;
 				
-				if (IsSRGB(image_format)) {
+				if (IsSRGB(image_format))
+				{
 					scratch.OverrideFormat(MakeTypelessUNORM(MakeTypeless(image_format)));
 				}
 			}
-			// we exhaused all options. Usaer an RGBA black compressed format.
-			else {
-				output_format = data->import_settings.preffer_bc7 ? DXGI_FORMAT_BC7_UNORM : scratch.IsAlphaAllOpaque() ? DXGI_FORMAT_BC1_UNORM : DXGI_FORMAT_BC3_UNORM;
+			// we exhaused all options. User an RGBA black compressed format.
+			else
+			{
+				output_format = data->import_settings.prefer_bc7 ? DXGI_FORMAT_BC7_UNORM : scratch.IsAlphaAllOpaque() ? DXGI_FORMAT_BC1_UNORM : DXGI_FORMAT_BC3_UNORM;
 			}
 			
 		_done:
@@ -437,7 +493,8 @@ namespace Quantum::tools {
 			return IsSRGB(image_format) ? MakeSRGB(output_format) : output_format;
 		}
 		
-		bool can_use_gpu(DXGI_FORMAT format) {
+		bool can_use_gpu(DXGI_FORMAT format)
+		{
 			switch (format) {
 				case DXGI_FORMAT_BC6H_TYPELESS:
 				case DXGI_FORMAT_BC6H_UF16:
@@ -448,7 +505,8 @@ namespace Quantum::tools {
 				{
 					std::lock_guard lock{ device_creation_mutex };
 					static bool try_once = false;
-					if (!try_once) {
+					if (!try_once)
+					{
 						try_once = true;
 						create_device();
 					}
@@ -460,11 +518,13 @@ namespace Quantum::tools {
 			return false;
 		}
 		
-		[[nodiscard]] ScratchImage compress_image(texture_data* const data, ScratchImage& scratch) {
+		[[nodiscard]] ScratchImage compress_image(texture_data* const data, ScratchImage& scratch)
+		{
 			assert(data && data->import_settings.compress && scratch.GetImages());
 			
 			const Image* const image{ scratch.GetImage(0, 0, 0) };
-			if (!image) {
+			if (!image)
+			{
 				data->info.import_error = import_error::unknown;
 				return{};
 			}
@@ -475,8 +535,10 @@ namespace Quantum::tools {
 			if (can_use_gpu(output_format)) {
 				bool wait{ true };
 				while (wait) {
-					for (u32 i{ 0 }; i < d3d11_devices.size(); ++i) {
-						if (d3d11_devices[i].hw_compression_mutex.try_lock()) {
+					for (u32 i{ 0 }; i < d3d11_devices.size(); ++i)
+					{
+						if (d3d11_devices[i].hw_compression_mutex.try_lock())
+						{
 							hr = Compress(d3d11_devices[i].device.Get(), scratch.GetImages(), scratch.GetImageCount(), scratch.GetMetadata(), output_format, TEX_COMPRESS_DEFAULT, 1.0f, bc_scratch);
 							d3d11_devices[i].hw_compression_mutex.unlock();
 							wait = false;
@@ -486,11 +548,13 @@ namespace Quantum::tools {
 					if (wait) std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				}
 			}
-			else {
+			else
+			{
 				hr = Compress(scratch.GetImages(), scratch.GetImageCount(), scratch.GetMetadata(), output_format, TEX_COMPRESS_PARALLEL, data->import_settings.alpha_threshold, bc_scratch);
 			}
 			
-			if (FAILED(hr)) {
+			if (FAILED(hr))
+			{
 				data->info.import_error = import_error::compress;
 				return {};
 			}
@@ -499,11 +563,25 @@ namespace Quantum::tools {
 		}
     } // anonymous namespace
 	
-	void ShutdownTextureTools() {
+	void ShutDownTextureTools()
+	{
 		d3d11_devices.clear();
+		
+		if (dxgi_module)
+		{
+			FreeLibrary(dxgi_module);
+			dxgi_module = nullptr;
+		}
+		
+		if (d3d11_module)
+		{
+			FreeLibrary(d3d11_module);
+			d3d11_module = nullptr;
+		}
 	}
 	
-    EDITOR_INTERFACE void Decompress(texture_data *const data) {
+    EDITOR_INTERFACE void Decompress(texture_data *const data)
+	{
 		using namespace Quantum::content;
 		assert(data->import_settings.compress);
 		texture_info& info{ data->info };
@@ -526,16 +604,19 @@ namespace Quantum::tools {
 		
 		ScratchImage scratch;
 		HRESULT hr{ Decompress(images.data(), (size_t)images.size(), metadata, DXGI_FORMAT_UNKNOWN, scratch) };
-		if (SUCCEEDED(hr)) {
+		if (SUCCEEDED(hr))
+		{
 			copy_subresources(scratch, data);
 			texture_info_from_metadata(scratch.GetMetadata(), data->info);
 		}
-		else {
+		else
+		{
 			info.import_error = import_error::decompress;
 		}
     }
 	
-    EDITOR_INTERFACE void Import(texture_data* const data) {
+    EDITOR_INTERFACE void Import(texture_data* const data)
+	{
         const texture_import_settings& settings{ data->import_settings };
         assert(settings.sources && settings.source_count);
 		
@@ -556,20 +637,23 @@ namespace Quantum::tools {
 			const ScratchImage& scratch{ scratch_images.back() };
 			const TexMetadata& metadata{ scratch.GetMetadata() };
 			
-			if (i == 0) {
+			if (i == 0)
+			{
 				width = (u32)metadata.width;
 				height = (u32)metadata.height;
 				format = metadata.format;
 			}
 			
-			// All image sources should hacve the same size.
-			if (width != metadata.width || height != metadata.height) {
+			// All image sources should have the same size.
+			if (width != metadata.width || height != metadata.height)
+			{
 				data->info.import_error = import_error::size_mismatch;
 				return;
 			}
 			
 			// All image sources should have the same format.
-			if (format != metadata.format) {
+			if (format != metadata.format)
+			{
 				data->info.import_error = import_error::format_mismatch;
 				return;
 			}
@@ -577,16 +661,19 @@ namespace Quantum::tools {
 			const u32 array_size{ (u32)metadata.arraySize };
 			const u32 depth{ (u32)metadata.depth };
 			
-			for (u32 array_index{ 0 }; array_index < array_size; ++array_index) for (u32 depth_index{ 0 }; depth_index < depth; ++depth_index) {
+			for (u32 array_index{ 0 }; array_index < array_size; ++array_index) for (u32 depth_index{ 0 }; depth_index < depth; ++depth_index)
+			{
 				const Image* image{ scratch.GetImage(0, array_index, depth_index) };
 				assert(image);
 					
-				if (!image) {
+				if (!image)
+				{
 					data->info.import_error = import_error::unknown;
 					return;
 				}
 					
-				if (width != image->width || height != image->height) {
+				if (width != image->width || height != image->height)
+				{
 					data->info.import_error = import_error::size_mismatch;
 					return;
 				}
@@ -598,7 +685,8 @@ namespace Quantum::tools {
 		ScratchImage scratch{ initialize_from_images(data, images) };
 		if (data->info.import_error) return;
 		
-		if (settings.compress) {
+		if (settings.compress)
+		{
 			
 			ScratchImage bc_scratch{ compress_image(data, scratch) };
 			if (data->info.import_error) return;

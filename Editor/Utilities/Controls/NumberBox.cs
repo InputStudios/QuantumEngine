@@ -17,47 +17,43 @@ namespace Editor.Utilities.Controls
         private double _multiplier;
         private bool _captured;
         private bool _valueChanged;
-
+		
         public event RoutedEventHandler ValueChanged
         {
             add => AddHandler(ValueChangedEvent, value);
             remove => RemoveHandler(ValueChangedEvent, value);
         }
-
-        public static readonly RoutedEvent ValueChangedEvent =
-            EventManager.RegisterRoutedEvent(nameof(ValueChanged), RoutingStrategy.Bubble,
-                typeof(RoutedEventHandler), typeof(NumberBox));
-
+		
+        public static readonly RoutedEvent ValueChangedEvent = EventManager.RegisterRoutedEvent(nameof(ValueChanged), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(NumberBox));
+		
         public double Multiplier
         {
             get => (double)GetValue(MultiplierProperty);
             set => SetValue(MultiplierProperty, value);
         }
-
-        public static readonly DependencyProperty MultiplierProperty =
-            DependencyProperty.Register(nameof(Multiplier), typeof(double), typeof(NumberBox),
-                new FrameworkPropertyMetadata(1.0));
-
+		
+        public static readonly DependencyProperty MultiplierProperty = DependencyProperty.Register(nameof(Multiplier), typeof(double), typeof(NumberBox), new FrameworkPropertyMetadata(1.0));
+		
         public string Value
         {
             get => (string)GetValue(ValueProperty);
             set => SetValue(ValueProperty, value);
         }
-
+		
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register(nameof(Value), typeof(string), typeof(NumberBox),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     new PropertyChangedCallback(OnValueChanged)));
-
+		
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             (d as NumberBox).RaiseEvent(new RoutedEventArgs(ValueChangedEvent));
         }
-
+		
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-
+		
             if (GetTemplateChild("PART_textBlock") is TextBlock textBlock)
             {
                 textBlock.MouseLeftButtonDown += OnTextBlock_Mouse_LBD;
@@ -65,11 +61,11 @@ namespace Editor.Utilities.Controls
                 textBlock.MouseMove += OnTextBock_Mouse_Move;
             }
         }
-
+		
         private void OnTextBlock_Mouse_LBD(object sender, MouseButtonEventArgs e)
         {
             double.TryParse(Value, out _originalValue);
-
+			
             Mouse.Capture(sender as UIElement);
             _captured = true;
             _valueChanged = false;
@@ -77,7 +73,7 @@ namespace Editor.Utilities.Controls
             _mouseXStart = e.GetPosition(this).X;
             Focus();
         }
-
+		
         private void OnTextBlock_Mouse_LBU(object sender, MouseButtonEventArgs e)
         {
             if (_captured)
@@ -89,11 +85,10 @@ namespace Editor.Utilities.Controls
                 {
                     textBox.Visibility = Visibility.Visible;
                     textBox.Focus();
-                    textBox.SelectAll();
                 }
             }
         }
-
+		
         private void OnTextBock_Mouse_Move(object sender, MouseEventArgs e)
         {
             if (_captured)
@@ -111,11 +106,10 @@ namespace Editor.Utilities.Controls
                 }
             }
         }
-
+		
         static NumberBox()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(NumberBox),
-                new FrameworkPropertyMetadata(typeof(NumberBox)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(NumberBox), new FrameworkPropertyMetadata(typeof(NumberBox)));
         }
     }
 }

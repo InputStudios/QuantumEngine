@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Andrey Trepalin. 
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
-
 using Editor.DLLWrappers;
 using Editor.GameProject;
 using Editor.Utilities;
@@ -12,8 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace Editor.Content
 {
@@ -26,7 +23,7 @@ namespace Editor.Content
         Cylinder,
         Capsule
     }
-
+	
     enum ElementsType
     {
         Position = 0x00,
@@ -35,7 +32,7 @@ namespace Editor.Content
         Joints = 0x04,
         Colors = 0x08
     }
-
+	
     enum PrimitiveTopology
     {
         PointList = 1,
@@ -44,14 +41,12 @@ namespace Editor.Content
         TriangleList,
         TriangleStrip,
     };
-
+	
     class Mesh : ViewModelBase
     {
-        public static int PostionSize = sizeof(float) * 3;
-
-
+        public static int PositionSize => sizeof(float) * 3;
+		
         private int _elementSize;
-
         public int ElementSize
         {
             get => _elementSize;
@@ -64,7 +59,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private int _vertexCount;
         public int VertexCount
         {
@@ -78,7 +73,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private int _index;
         public int Index
         {
@@ -92,7 +87,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private int _indexSize;
         public int IndexSize
         {
@@ -106,10 +101,9 @@ namespace Editor.Content
                 }
             }
         }
-
-
+		
         private string _name;
-
+		
         public string Name
         {
             get => _name;
@@ -122,7 +116,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private int _indexCount;
         public int IndexCount
         {
@@ -136,15 +130,15 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         public ElementsType ElementsType { get; set; }
-
+		
         public PrimitiveTopology PrimitiveTopology { get; set; }
         public byte[] Positions { get; set; }
         public byte[] Elements { get; set; }
         public byte[] Indices { get; set; }
     }
-
+	
     class MeshLOD : ViewModelBase
     {
         private string _name;
@@ -160,7 +154,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private float _lodThreshold;
         public float LodThreshold
         {
@@ -174,10 +168,10 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         public ObservableCollection<Mesh> Meshes { get; } = new ObservableCollection<Mesh>();
     }
-
+	
     class LODGroup : ViewModelBase
     {
         private string _name;
@@ -193,12 +187,12 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         public ObservableCollection<MeshLOD> LODs { get; } = new ObservableCollection<MeshLOD>();
     }
-
-    class GeometryImportSettings : ViewModelBase
-    {
+	
+    class GeometryImportSettings : ViewModelBase, IAssetImportSettings
+	{
         private bool _calculateNormals;
         public bool CalculateNormals
         {
@@ -212,7 +206,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private bool _calculateTangents;
         public bool CalculateTangents
         {
@@ -226,9 +220,9 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private float _smoothingAngle;
-        public float SmoothingAngle
+	    public float SmoothingAngle
         {
             get => _smoothingAngle;
             set
@@ -240,7 +234,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private bool _reverseHandedness;
         public bool ReverseHandedness
         {
@@ -254,7 +248,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private bool _importEmbeddedTextures;
         public bool ImportEmbeddedTextures
         {
@@ -268,7 +262,7 @@ namespace Editor.Content
                 }
             }
         }
-
+		
         private bool _importAnimations;
         public bool ImportAnimations
         {
@@ -282,8 +276,22 @@ namespace Editor.Content
                 }
             }
         }
-
-        public GeometryImportSettings()
+		
+		private bool _coalesceMeshes;
+		public bool CoalesceMeshes
+		{
+			get => _coalesceMeshes;
+			set
+			{
+				if (_coalesceMeshes != value)
+				{
+					_coalesceMeshes = value;
+					OnPropertyChanged(nameof(CoalesceMeshes));
+				}
+			}
+		}
+		
+		public GeometryImportSettings()
         {
             CalculateNormals = false;
             CalculateTangents = false;
@@ -291,8 +299,9 @@ namespace Editor.Content
             ReverseHandedness = false;
             ImportEmbeddedTextures = true;
             ImportAnimations = true;
+			CoalesceMeshes = false;
         }
-
+		
         internal void ToBinary(BinaryWriter writer)
         {
             writer.Write(CalculateNormals);
@@ -301,8 +310,9 @@ namespace Editor.Content
             writer.Write(ReverseHandedness);
             writer.Write(ImportEmbeddedTextures);
             writer.Write(ImportAnimations);
+            writer.Write(CoalesceMeshes);
         }
-
+		
         public void FromBinary(BinaryReader reader)
         {
             CalculateNormals = reader.ReadBoolean();
@@ -311,27 +321,33 @@ namespace Editor.Content
             ReverseHandedness = reader.ReadBoolean();
             ImportEmbeddedTextures = reader.ReadBoolean();
             ImportAnimations = reader.ReadBoolean();
+			CoalesceMeshes = reader.ReadBoolean();
         }
-    }
 
+		void IAssetImportSettings.ToBinary(BinaryWriter writer)
+		{
+			ToBinary(writer);
+		}
+	}
+	
     class Geometry : Asset
     {
-        private readonly List<LODGroup> _lodGroups = new List<LODGroup>();
-        private readonly object _lock = new object();
-
-        public GeometryImportSettings ImportSettings { get; } = new GeometryImportSettings();
-
+        private readonly List<LODGroup> _lodGroups = new();
+        private readonly object _lock = new();
+		
+        public GeometryImportSettings ImportSettings { get; } = new();
+		
         public LODGroup GetLODGroup(int lodGroup = 0)
         {
             Debug.Assert(lodGroup >= 0 && lodGroup < _lodGroups.Count);
             return (lodGroup < _lodGroups.Count) ? _lodGroups[lodGroup] : null;
         }
-
+		
         public void FromRawData(byte[] data)
         {
             Debug.Assert(data?.Length > 0);
             _lodGroups.Clear();
-
+			
             using var reader = new BinaryReader(new MemoryStream(data));
             // skip scene name string
             var s = reader.ReadInt32();
@@ -339,7 +355,7 @@ namespace Editor.Content
             // get number of LODs
             var numLODGroups = reader.ReadInt32();
             Debug.Assert(numLODGroups > 0);
-
+			
             for (int i = 0; i < numLODGroups; ++i)
             {
                 // get LOD group's name
@@ -354,19 +370,19 @@ namespace Editor.Content
                 {
                     lodGroupName = $"lod_{ContentHelper.GetRandomString()}";
                 }
-
+				
                 // get number of meshes in this LOD group
                 var numMeshes = reader.ReadInt32();
                 Debug.Assert(numMeshes > 0);
                 var lods = ReadMeshLODs(numMeshes, reader);
-
+				
                 var lodGroup = new LODGroup() { Name = lodGroupName };
                 lods.ForEach(l => lodGroup.LODs.Add(l));
-
+				
                 _lodGroups.Add(lodGroup);
             }
         }
-
+		
         private static List<MeshLOD> ReadMeshLODs(int numMeshes, BinaryReader reader)
         {
             var lodIds = new List<int>();
@@ -375,10 +391,10 @@ namespace Editor.Content
             {
                 ReadMeshes(reader, lodIds, lodList);
             }
-
+			
             return lodList;
         }
-
+		
         private static void ReadMeshes(BinaryReader reader, List<int> lodIds, List<MeshLOD> lodList)
         {
             // get mesh's name
@@ -393,9 +409,9 @@ namespace Editor.Content
             {
                 meshName = $"mesh_{ContentHelper.GetRandomString()}";
             }
-
+			
             var mesh = new Mesh() { Name = meshName };
-
+			
             var lodId = reader.ReadInt32();
             mesh.ElementSize = reader.ReadInt32();
             mesh.ElementsType = (ElementsType)reader.ReadInt32();
@@ -404,14 +420,14 @@ namespace Editor.Content
             mesh.IndexSize = reader.ReadInt32();
             mesh.IndexCount = reader.ReadInt32();
             var lodThreshold = reader.ReadSingle();
-
-            var elementBufferSize = mesh.ElementSize * mesh.VertexCount;
+			
+            var elementsBufferSize = mesh.ElementSize * mesh.VertexCount;
             var indexBufferSize = mesh.IndexSize * mesh.IndexCount;
-
-            mesh.Positions = reader.ReadBytes(Mesh.PostionSize * mesh.VertexCount);
-            mesh.Elements = reader.ReadBytes(elementBufferSize);
+			
+            mesh.Positions = reader.ReadBytes(Mesh.PositionSize * mesh.VertexCount);
+            mesh.Elements = reader.ReadBytes(elementsBufferSize);
             mesh.Indices = reader.ReadBytes(indexBufferSize);
-
+			
             MeshLOD lod;
             if (ID.IsValid(lodId) && lodIds.Contains(lodId))
             {
@@ -424,55 +440,71 @@ namespace Editor.Content
                 lod = new MeshLOD() { Name = meshName, LodThreshold = lodThreshold };
                 lodList.Add(lod);
             }
-
+			
             lod.Meshes.Add(mesh);
         }
-
-        public override void Import(string file)
+		
+        public override bool Import(string file)
         {
             Debug.Assert(File.Exists(file));
             Debug.Assert(!string.IsNullOrEmpty(FullPath));
             var ext = Path.GetExtension(file).ToLower();
-
-            SourcePath = file;
-
-            try
-            {
-                if (ext == ".fbx")
-                {
-                    ImportFbx(file);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                var msg = $"Failed to read {file} for import.";
-                Debug.WriteLine(msg);
-                Logger.Log(MessageType.Error, msg);
-            }
+			
+			if (ext == ".fbx")
+			{
+				return ImportFbx(file);
+			}
+			
+			return false;
         }
-
-        private void ImportFbx(string file)
+		
+        private bool ImportFbx(string file)
         {
             Logger.Log(MessageType.Info, $"Importing FBX file {file}");
             var tempPath = Application.Current.Dispatcher.Invoke(() => Project.Current.TempFolder);
-            if (string.IsNullOrEmpty(tempPath)) return;
-
+            if (string.IsNullOrEmpty(tempPath)) return false;
+			
             lock (_lock)
             {
                 if (!Directory.Exists(tempPath)) Directory.CreateDirectory(tempPath);
             }
-
+			
             var tempFile = $"{tempPath}{ContentHelper.GetRandomString()}.fbx";
             File.Copy(file, tempPath, true);
-            ContentToolsAPI.ImportFbx(tempFile, this);
+			bool result = false;
+			
+			try
+			{
+				ContentToolsAPI.ImportFbx(tempFile, this);
+				result = true;
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+				var msg = $"Failed to read {file} for import";
+				Debug.WriteLine(msg);
+				Logger.Log(MessageType.Error, msg);
+			}
+			
+			if (ImportSettings.ImportEmbeddedTextures)
+			{
+				var embeddedMediaDir = $@"{tempPath}{Path.GetFileNameWithoutExtension(tempFile)}.fbm{Path.DirectorySeparatorChar}";
+				if (Directory.Exists(embeddedMediaDir))
+				{
+					Debug.Assert(!string.IsNullOrEmpty(FullPath));
+					var files = Directory.GetFiles(embeddedMediaDir);
+					new ConfigureImportSettings(files, Path.GetDirectoryName(FullPath)).Import();
+				}
+			}
+			
+			return result;
         }
-
-        public override void Load(string file)
+		
+        public override bool Load(string file)
         {
             Debug.Assert(File.Exists(file));
             Debug.Assert(Path.GetExtension(file).ToLower() == AssetFileExtension);
-
+			
             try
             {
                 byte[] data = null;
@@ -484,44 +516,49 @@ namespace Editor.Content
                     Debug.Assert(dataLength > 0);
                     data = reader.ReadBytes(dataLength);
                 }
-
+				
                 Debug.Assert(data.Length > 0);
+				
                 using (var reader = new BinaryReader(new MemoryStream(data)))
                 {
-                    LODGroup lodGroup = new LODGroup();
+                    LODGroup lodGroup = new();
                     lodGroup.Name = reader.ReadString();
                     var lodGroupCount = reader.ReadInt32();
-
+					
                     for (int i = 0; i < lodGroupCount; ++i)
                     {
                         lodGroup.LODs.Add(BinaryToLOD(reader));
                     }
-
+					
                     _lodGroups.Clear();
                     _lodGroups.Add(lodGroup);
                 }
-
-                // For testing. Remove later!
-                PackForEngine();
-                // For testing. Remove later!
-
+				
+				// For testing. Remove later!
+				// PackForEngine();
+				// For testing. Remove later!
+				
+				return true;
+				
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 Logger.Log(MessageType.Error, $"Failed to load geometry asset from file: {file}");
             }
+			
+			return false;
         }
-
+		
         public override IEnumerable<string> Save(string file)
         {
             Debug.Assert(_lodGroups.Any());
             var savedFiles = new List<string>();
             if (!_lodGroups.Any()) return savedFiles;
-
+			
             var path = Path.GetDirectoryName(file) + Path.DirectorySeparatorChar;
             var fileName = Path.GetFileNameWithoutExtension(file);
-
+			
             try
             {
                 foreach (var lodGroup in _lodGroups)
@@ -544,14 +581,14 @@ namespace Editor.Content
                             LODToBinary(lod, writer, out var hash);
                             hashes.AddRange(hash);
                         }
-
+						
                         Hash = ContentHelper.ComputeHash(hashes.ToArray());
                         data = (writer.BaseStream as MemoryStream).ToArray();
                         Icon = GenerateIcon(lodGroup.LODs[0]);
                     }
-
+					
                     Debug.Assert(data?.Length > 0);
-
+					
                     using (var writer = new BinaryWriter(File.Open(meshFileName, FileMode.Create, FileAccess.Write)))
                     {
                         WriteAssetFileHeader(writer);
@@ -559,20 +596,22 @@ namespace Editor.Content
                         writer.Write(data.Length);
                         writer.Write(data);
                     }
-
+					
                     Logger.Log(MessageType.Info, $"Saved geometry to {meshFileName}");
                     savedFiles.Add(meshFileName);
                 }
+				
+				FullPath = file;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 Logger.Log(MessageType.Error, $"Failed to save geometry to {file}");
             }
-
+			
             return savedFiles;
         }
-
+		
         /// <summary>
         /// Packs the geometry into a byte array which can be used by the engine.
         /// </summary>
@@ -594,11 +633,11 @@ namespace Editor.Content
         ///      } mesh_lods[lod_count]
         // } geometry;
         /// </returns>
-
+		
         public override byte[] PackForEngine()
         {
             using var writer = new BinaryWriter(new MemoryStream());
-
+			
             writer.Write(GetLODGroup().LODs.Count);
             foreach (var lod in GetLODGroup().LODs)
             {
@@ -613,47 +652,47 @@ namespace Editor.Content
                     writer.Write(mesh.IndexCount);
                     writer.Write((int)mesh.ElementsType);
                     writer.Write((int)mesh.PrimitiveTopology);
-
+					
                     var alignedPositionBuffer = new byte[MathUtil.AlignSizeUp(mesh.Positions.Length, 4)];
                     Array.Copy(mesh.Positions, alignedPositionBuffer, mesh.Positions.Length);
                     var alignedElementBuffer = new byte[MathUtil.AlignSizeUp(mesh.Positions.Length, 4)];
                     Array.Copy(mesh.Positions, alignedPositionBuffer, mesh.Positions.Length);
-
+					
                     writer.Write(alignedPositionBuffer);
                     writer.Write(alignedElementBuffer);
                     writer.Write(mesh.Indices);
                 }
-
+				
                 var endOfSubmeshes = writer.BaseStream.Position;
                 var sizeOfSubmeshes = (int)(endOfSubmeshes - sizeOfSubmeshesPosition - sizeof(int));
-
+				
                 writer.BaseStream.Position = sizeOfSubmeshesPosition;
                 writer.Write(sizeOfSubmeshes);
                 writer.BaseStream.Position = endOfSubmeshes;
             }
-
+			
             writer.Flush();
             var data = (writer.BaseStream as MemoryStream)?.ToArray();
             Debug.Assert(data?.Length > 0);
-
+			
             // For Testing. Remove later!
             using (var fs = new FileStream(@"..\..\x64\model.model", FileMode.Create))
             {
                 fs.Write(data, 0, data.Length);
             }
             // For testing. Remove later!
-
+			
             return data;
         }
-
+		
         private void LODToBinary(MeshLOD lod, BinaryWriter writer, out byte[] hash)
         {
             writer.Write(lod.Name);
             writer.Write(lod.LodThreshold);
             writer.Write(lod.Meshes.Count);
-
+			
             var meshDataBegin = writer.BaseStream.Position;
-
+			
             foreach (var mesh in lod.Meshes)
             {
                 writer.Write(mesh.Name);
@@ -667,20 +706,20 @@ namespace Editor.Content
                 writer.Write(mesh.Elements);
                 writer.Write(mesh.Indices);
             }
-
+			
             var meshDataSize = writer.BaseStream.Position - meshDataBegin;
             Debug.Assert(meshDataSize > 0);
             var buffer = (writer.BaseStream as MemoryStream).ToArray();
             hash = ContentHelper.ComputeHash(buffer, (int)meshDataBegin, (int)meshDataSize);
         }
-
+		
         private MeshLOD BinaryToLOD(BinaryReader reader)
         {
             var lod = new MeshLOD();
             lod.Name = reader.ReadString();
             lod.LodThreshold = reader.ReadSingle();
             var meshCount = reader.ReadInt32();
-
+		
             for (int i = 0; i < meshCount; i++)
             {
                 var mesh = new Mesh()
@@ -693,41 +732,40 @@ namespace Editor.Content
                     IndexSize = reader.ReadInt32(),
                     IndexCount = reader.ReadInt32(),
                 };
-
-                mesh.Positions = reader.ReadBytes(Mesh.PostionSize * mesh.VertexCount);
+				
+                mesh.Positions = reader.ReadBytes(Mesh.PositionSize * mesh.VertexCount);
                 mesh.Elements = reader.ReadBytes(mesh.ElementSize * mesh.VertexCount);
                 mesh.Indices = reader.ReadBytes(mesh.IndexSize * mesh.IndexCount);
-
+				
                 lod.Meshes.Add(mesh);
             }
-
+			
             return lod;
         }
-
-        private byte[] GenerateIcon(MeshLOD lod)
+		
+        private static byte[] GenerateIcon(MeshLOD lod)
         {
             var width = ContentInfo.IconWidth * 4;
-
-            using var memStream = new MemoryStream();
-            BitmapSource bmp = null;
+			byte[] icon = null;
             // NOTE: it's not good practice to use a WPF control (view) in the ViewModel.
             //       But we need to make an exception for this case, for as long as we don't
             //       have a graphics renderer that we can use for screenshots.
             Application.Current.Dispatcher.Invoke(() =>
             {
-                bmp = Editors.GeometryView.RenderToBitmap(new Editors.MeshRenderer(lod, null), width, width);
-                bmp = new TransformedBitmap(bmp, new ScaleTransform(0.25, 0.25, 0.5, 0.5));
-
-                memStream.SetLength(0);
-
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bmp));
-                encoder.Save(memStream);
+				// Create an image that's 4x larger, so it's softened when it's scaled down.
+                var bmp = Editors.GeometryView.RenderToBitmap(new Editors.MeshRenderer(lod, null), width, width);
+                icon = BitmapHelper.CreateThumbnail(bmp, ContentInfo.IconWidth, ContentInfo.IconWidth);
             });
-
-            return memStream.ToArray();
+			
+            return icon;
         }
-
-        public Geometry() : base(AssetType.Mesh) { }
+		
+        public Geometry() : base(AssetType.Mesh) {}
+		
+		public Geometry(IAssetImportSettings importSettings) : this()
+		{
+			Debug.Assert(importSettings is GeometryImportSettings);
+			ImportSettings = (GeometryImportSettings)importSettings;
+		}
     }
 }

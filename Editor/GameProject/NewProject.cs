@@ -22,7 +22,7 @@ namespace Editor.GameProject
         public string ProjectFile { get; set; }
         [DataMember]
         public List<string> Folders { get; set; }
-
+		
         public byte[] Icon { get; set; }
         public byte[] Screenshot { get; set; }
         public string IconFilePath { get; set; }
@@ -30,12 +30,12 @@ namespace Editor.GameProject
         public string ProjectFilePath { get; set; }
         public string TemplatePath { get; set; }
     }
-
+	
     class NewProject : ViewModelBase
     {
         // TODO: get the path from the installation location
         private readonly string _templatePath = @"..\..\Editor\ProjectTemplates";
-
+		
         private string _projectName = "NewProject";
         public string ProjectName
         {
@@ -50,9 +50,9 @@ namespace Editor.GameProject
                 }
             }
         }
-
+		
         private string _projectPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\QuantumProjects\";
-
+		
         public string ProjectPath
         {
             get => _projectPath;
@@ -66,7 +66,7 @@ namespace Editor.GameProject
                 }
             }
         }
-
+		
         private bool _isValid;
         public bool IsValid
         {
@@ -80,7 +80,7 @@ namespace Editor.GameProject
                 }
             }
         }
-
+		
         private string _errorMsg;
         public string ErrorMsg
         {
@@ -94,17 +94,17 @@ namespace Editor.GameProject
                 }
             }
         }
-
+		
         private readonly ObservableCollection<ProjectTemplate> _projectTemplates = new();
         public ReadOnlyObservableCollection<ProjectTemplate> ProjectTemplates { get; }
-
+		
         private bool ValidateProjectPath()
         {
             var path = ProjectPath;
             if (!Path.EndsInDirectorySeparator(path)) path += @"\";
             path += $@"{ProjectName}\";
             var nameRegex = new Regex(@"^[A-Za-z_][A-Za-z0-9_]*$");
-
+			
             IsValid = false;
             if (string.IsNullOrWhiteSpace(ProjectName.Trim()))
             {
@@ -132,18 +132,18 @@ namespace Editor.GameProject
                 ErrorMsg = string.Empty;
                 IsValid = true;
             }
-
+			
             return IsValid;
         }
-
+		
         public string CreateProject(ProjectTemplate template)
         {
             ValidateProjectPath();
             if (!IsValid) return string.Empty;
-
+			
             if (!Path.EndsInDirectorySeparator(ProjectPath)) ProjectPath += @"\";
             var path = $@"{ProjectPath}{ProjectName}\";
-
+			
             try
             {
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
@@ -155,14 +155,14 @@ namespace Editor.GameProject
                 dirInfo.Attributes |= FileAttributes.Hidden;
                 File.Copy(template.IconFilePath, Path.GetFullPath(Path.Combine(dirInfo.FullName, "Icon.png")));
                 File.Copy(template.ScreenshotFilePath, Path.GetFullPath(Path.Combine(dirInfo.FullName, "Screenshot.png")));
-
+				
                 var projectXml = File.ReadAllText(template.ProjectFilePath);
                 projectXml = string.Format(projectXml, ProjectName, path);
                 var projectPath = Path.GetFullPath(Path.Combine(path, $"{ProjectName}{Project.Extension}"));
                 File.WriteAllText(projectPath, projectXml);
-
+				
                 CreateMSVCSolution(template, path);
-
+				
                 return path;
             }
             catch (Exception ex)
@@ -172,29 +172,29 @@ namespace Editor.GameProject
                 throw;
             }
         }
-
+		
         private void CreateMSVCSolution(ProjectTemplate template, string projectPath)
         {
             Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCSolution")));
             Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCProject")));
-
+			
             var engineAPIPath = @"$(QUANTUM_ENGINE)Engine\EngineAPI\";
             Debug.Assert(Directory.Exists(engineAPIPath));
-
+			
             var _0 = ProjectName;
             var _1 = "{" + Guid.NewGuid().ToString().ToUpper() + "}";
             var _2 = engineAPIPath;
             var _3 = "$(QUANTUM_ENGINE)";
-
+			
             var solution = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCSolution"));
             solution = string.Format(solution, _0, _1, "{" + Guid.NewGuid().ToString().ToUpper() + "}");
             File.WriteAllText(Path.GetFullPath(Path.Combine(projectPath, $"{_0}.sln")), solution);
-
+			
             var project = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
             project = string.Format(project, _0, _1, _2, _3);
             File.WriteAllText(Path.GetFullPath(Path.Combine(projectPath, @$"GameCode\{_0}.vcxproj")), project);
         }
-
+		
         public NewProject()
         {
             ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
@@ -211,7 +211,7 @@ namespace Editor.GameProject
                     _template.Screenshot = File.ReadAllBytes(_template.ScreenshotFilePath);
                     _template.ProjectFilePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(template), _template.ProjectFile));
                     _template.TemplatePath = Path.GetDirectoryName(template);
-
+					
                     _projectTemplates.Add(_template);
                 }
                 ValidateProjectPath();

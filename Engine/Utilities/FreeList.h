@@ -4,7 +4,6 @@
 #include "CommonHeaders.h"
 
 namespace Quantum::util {
-     
 #if USE_STL_VECTOR
 #pragma message("WARNING: using util::free_list with std::vector result in duplicate calls to class constructor!")
 #endif
@@ -17,11 +16,10 @@ namespace Quantum::util {
         explicit free_list(u32 count) {
             _array.reserve(count);
         }
-		
         ~free_list() {
             assert(!_size);
 #if USE_STL_VECTOR
-            memset(_array.data(), 0, _array.size() * sizeof(T));
+            memset(_array.data(), 0x0, _array.size() * sizeof(T));
 #endif
         }
 		
@@ -46,9 +44,10 @@ namespace Quantum::util {
 		
         constexpr void remove(u32 id) {
             assert(id < _array.size() && !already_removed(id));
+			if (already_removed(id)) return;
             T& item{ _array[id] };
             item.~T();
-            DEBUG_OP(memset(std::addressof(_array[id]), 0xcc, sizeof(T)));
+            DEBUG_OP(memset(std::addressof(_array[id]), 0xCC, sizeof(T)));
             *(u32 *const)std::addressof(_array[id]) = _next_free_index;
             _next_free_index = id;
             --_size;
@@ -82,7 +81,7 @@ namespace Quantum::util {
             if constexpr (sizeof(T) > sizeof(u32)) {
                 u32 i{ sizeof(u32) }; // skip the first 4 bytes.
                 const u8 *const p{ (const u8 *const)std::addressof(_array[id]) };
-                while ((p[i] == 0xcc) && (i < sizeof(T))) ++i;
+                while ((p[i] == 0xCC) && (i < sizeof(T))) ++i;
                 return i == sizeof(T);
             }
             else {

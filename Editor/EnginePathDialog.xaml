@@ -8,20 +8,26 @@
         ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
         Title="Quantum Engine Path?" Height="250" Width="400">
     
-    <Border CornerRadius="3" Background="{StaticResource Editor.Window.GrayBrush3}" HorizontalAlignment="Stretch" 
-            Margin="10">
+    <Border CornerRadius="3" Background="{StaticResource Editor.Window.GrayBrush3}" HorizontalAlignment="Stretch" Margin="10">
         <Border.Effect>
             <DropShadowEffect Opacity="0.6" BlurRadius="15" ShadowDepth="2"/>
         </Border.Effect>
         <Grid Margin="32,0">
-            <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{StaticResource Editor.RedBrush}" 
-                       Margin="0,10,0,0" TextWrapping="Wrap" x:Name="messageTextBlock"/>
+            <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{StaticResource Editor.RedBrush}" Margin="0,10,0,0" TextWrapping="Wrap" x:Name="messageTextBlock"/>
             <DockPanel>
                 <TextBlock Text="Engine path" Width="72" Style="{StaticResource LightTextBlockStyle}"/>
-                <TextBox x:Name="pathTextBox"/>
-            </DockPanel>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom"
-                        HorizontalAlignment="Right" Margin="0,0,0,20">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+					<TextBox x:Name="pathTextBox" Grid.Column="0" VerticalAlignment="Center" />
+					<Button Grid.Column="1" Width="50" Height="24" Margin="4,0,0,0" Padding="0" VerticalAlignment="Center" Click="OnBrowse_Button_Click">
+						<TextBlock Text="Browse" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+					</Button>
+				</Grid>
+			</DockPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,20">
                 <Button Content="Ok" Width="64" Margin="32,0" IsDefault="True" Click="OnOk_Button_Click"/>
                 <Button Content="Cancel" Width="64" IsCancel="True"/>
             </StackPanel>

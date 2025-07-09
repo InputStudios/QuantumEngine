@@ -17,7 +17,7 @@ namespace Editor
             InitializeComponent();
             Owner = Application.Current.MainWindow;
         }
-
+		
         private void OnOk_Button_Click(object sender, RoutedEventArgs e)
         {
             var path = pathTextBox.Text.Trim();
@@ -32,9 +32,9 @@ namespace Editor
             }
             else if (!Directory.Exists(Path.Combine(path, @"Engine\EngineAPI\")))
             {
-                messageTextBlock.Text = "Unable to fine the engine at the specified location.";
+                messageTextBlock.Text = "Unable to find the engine at the specified location.";
             }
-
+			
             if (string.IsNullOrEmpty(messageTextBlock.Text))
             {
                 if (!Path.EndsInDirectorySeparator(path)) path += @"\";
@@ -43,5 +43,10 @@ namespace Editor
                 Close();
             }
         }
-    }
+		
+		private void OnBrowse_Button_Click(object sender, RoutedEventArgs e)
+		{
+			
+		}
+	}
 }
